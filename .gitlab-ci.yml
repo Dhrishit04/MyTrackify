@@ -1,0 +1,198 @@
+# ============================================
+# MyTrackify — GitLab CI/CD Pipeline
+# ============================================
+# Stages:
+#   1. build   — Compile backend (Maven) + frontend (Vite)
+#   2. test    — Run backend unit tests + frontend lint
+#   3. docker  — Build & push Docker images to GitLab registry
+#   4. deploy  — Deploy to production (manual trigger)
+# ============================================
+
+stages:
+  - build
+  - test
+  - docker
+  - deploy
+
+# --------------------------------------------
+# Global defaults
+# --------------------------------------------
+default:
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  tags:
+    - docker
+  before_script:
+    - echo "CI_PIPELINE_ID=$CI_PIPELINE_ID"
+    - echo "CI_COMMIT_SHA=$CI_COMMIT_SHA"
+
+# --------------------------------------------
+# Cache — speed up repeated pipeline runs
+# --------------------------------------------
+.maven-cache: &maven-cache
+  key:
+    files:
+      - backend/pom.xml
+  paths:
+    - backend/.m2/repository/
+
+.npm-cache: &npm-cache
+  key:
+    files:
+      - frontend/package-lock.json
+  paths:
+    - frontend/node_modules/
+
+# ============================================
+# BUILD STAGE
+# ============================================
+
+build-backend:
+  stage: build
+  image: maven:3.9.6-eclipse-temurin-17-alpine
+  <<: *maven-cache
+  script:
+    - cd backend
+    - mvn compile -B -DskipTests
+  artifacts:
+    paths:
+      - backend/target/
+    expire_in: 1 hour
+  cache:
+    <<: *maven-cache
+    policy: pull-push
+
+build-frontend:
+  stage: build
+  image: node:20-alpine
+  <<: *npm-cache
+  script:
+    - cd frontend
+    - npm ci --prefer-offline
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/dist/
+    expire_in: 1 hour
+  cache:
+    <<: *npm-cache
+    policy: pull-push
+
+# ============================================
+# TEST STAGE
+# ============================================
+
+test-backend:
+  stage: test
+  image: maven:3.9.6-eclipse-temurin-17-alpine
+  needs:
+    - build-backend
+  cache:
+    <<: *maven-cache
+    policy: pull
+  script:
+    - cd backend
+    - mvn test -B
+  artifacts:
+    reports:
+      junit:
+        - backend/target/surefire-reports/TEST-*.xml
+    expire_in: 7 days
+  coverage: '/Total.*?([0-9]{1,3})%/'
+
+test-frontend:
+  stage: test
+  image: node:20-alpine
+  needs:
+    - build-frontend
+  cache:
+    <<: *npm-cache
+    policy: pull
+  script:
+    - cd frontend
+    - npm run lint -- --max-warnings=0
+
+# ============================================
+# DOCKER STAGE — Build & push images
+# ============================================
+
+.docker-variables: &docker-variables
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_TLS_VERIFY: 1
+  DOCKER_CERT_PATH: "/certs/client"
+
+docker-build-backend:
+  stage: docker
+  needs:
+    - build-backend
+    - test-backend
+  variables:
+    <<: *docker-variables
+    IMAGE_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA
+    LATEST_TAG: $CI_REGISTRY_IMAGE/backend:latest
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - cd backend
+    - mvn package -DskipTests -B
+    - docker build -t $IMAGE_TAG -t $LATEST_TAG -f ../docker/backend.Dockerfile .
+    - docker push $IMAGE_TAG
+    - docker push $LATEST_TAG
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+docker-build-frontend:
+  stage: docker
+  needs:
+    - build-frontend
+    - test-frontend
+  variables:
+    <<: *docker-variables
+    IMAGE_TAG: $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA
+    LATEST_TAG: $CI_REGISTRY_IMAGE/frontend:latest
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - cd frontend
+    - docker build -t $IMAGE_TAG -t $LATEST_TAG -f ../docker/frontend.Dockerfile .
+    - docker push $IMAGE_TAG
+    - docker push $LATEST_TAG
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+# ============================================
+# DEPLOY STAGE — Manual production deploy
+# ============================================
+
+deploy-production:
+  stage: deploy
+  needs:
+    - docker-build-backend
+    - docker-build-frontend
+  variables:
+    <<: *docker-variables
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - apk add --no-cache openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+  script:
+    - ssh $DEPLOY_USER@$DEPLOY_HOST "
+        cd /opt/mytrackify &&
+        docker compose -f docker-compose.prod.yml pull &&
+        docker compose -f docker-compose.prod.yml up -d --remove-orphans &&
+        docker system prune -f
+      "
+  environment:
+    name: production
+    url: https://mytrackify.com
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual
+  allow_failure: false

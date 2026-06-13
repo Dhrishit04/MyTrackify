@@ -1,0 +1,109 @@
+# ============================================
+# MyTrackify — Application Configuration
+# ============================================
+
+spring:
+  application:
+    name: mytrackify
+
+  # Switch to 'dev' for H2 in-memory, 'prod' for PostgreSQL
+  profiles:
+    active: prod
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+# JWT Configuration
+app:
+  jwt:
+    secret: mytrackify-jwt-secret-key-that-is-at-least-256-bits-long-for-hs256-algorithm
+    expiration-ms: 86400000  # 24 hours
+    refresh-expiration-ms: 604800000  # 7 days
+
+# Server
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+---
+# ============================================
+# Dev Profile — H2 In-Memory Database
+# ============================================
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:h2:mem:mytrackify;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  flyway:
+    enabled: false  # Disabled for dev — using JPA auto DDL
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+---
+# ============================================
+# Prod Profile — PostgreSQL
+# ============================================
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mytrackify
+    driver-class-name: org.postgresql.Driver
+    username: mytrackify_admin
+    password: mytrackify_pass_2025
+
+  flyway:
+    enabled: false  # Using JPA ddl-auto for now; switch to Flyway for production deployments
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+
+logging:
+  level:
+    com.mytrackify: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: DEBUG

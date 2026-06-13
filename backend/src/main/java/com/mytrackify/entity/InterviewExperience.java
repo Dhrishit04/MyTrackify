@@ -1,0 +1,66 @@
+package com.mytrackify.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDateTime;
+
+/**
+ * InterviewExperience entity — detailed experience log for a specific interview round.
+ * Contains questions, topics, tips, and community voting.
+ */
+@Entity
+@Table(name = "interview_experiences")
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
+@Builder
+public class InterviewExperience {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "attempt_id", nullable = false)
+    private RoundAttempt attempt;
+
+    @Column(name = "questions_asked", nullable = false, columnDefinition = "TEXT")
+    private String questionsAsked;
+
+    // Comma-separated topics (in PostgreSQL, this would be TEXT[])
+    @Column(length = 500)
+    private String topics;
+
+    @Column(name = "interviewer_focus", columnDefinition = "TEXT")
+    private String interviewerFocus;
+
+    @Column(name = "preparation_tips", columnDefinition = "TEXT")
+    private String preparationTips;
+
+    @Column(name = "difficulty_rating")
+    private Integer difficultyRating; // 1-5
+
+    @Builder.Default
+    @Column(name = "helpful_count")
+    private Integer helpfulCount = 0;
+
+    @Builder.Default
+    @Column
+    private Boolean verified = false;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+}

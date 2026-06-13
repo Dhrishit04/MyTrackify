@@ -1,0 +1,33 @@
+# MyTrackify
+
+Dependencies:
+- node_modules/
+- .gradle/
+- build/
+- target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.code-workspace
+
+# Environment
+.env
+.env.local
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build output
+dist/
+frontend/dist/
+backend/target/
+
+# Misc
+*.swp
+*.swo
+*~
+CAMPUS_PLACEMENT_INTELLIGENCE_PLATFORM.md

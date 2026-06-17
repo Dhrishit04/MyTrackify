@@ -75,7 +75,7 @@ spec:
         name: pgdata
       spec:
         accessModes: ["ReadWriteOnce"]
-        storageClassName: standard  # Adjust to your cluster's StorageClass (e.g., gp2, managed-csi)
+        storageClassName: local-path  # Adjust to your cluster's StorageClass (e.g., gp2, managed-csi, standard)
         resources:
           requests:
             storage: 10Gi

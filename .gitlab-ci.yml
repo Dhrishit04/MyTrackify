@@ -204,16 +204,16 @@ deploy-staging:
     # Wait for DB to be ready
     - kubectl rollout status statefulset/mytrackify-db -n ${KUBE_NAMESPACE} --timeout=120s || true
 
-    # Apply backend with new image tag
+    # Apply backend with new image (substitute both tag and full image path)
     - |
       cat k8s/backend.yml | \
-        sed "s|image:.*backend:latest|image: ${BACKEND_IMAGE}:${CI_COMMIT_SHORT_SHA}|" | \
+        sed "s|image:.*backend.*|image: ${BACKEND_IMAGE}:${CI_COMMIT_SHORT_SHA}|" | \
         kubectl apply -f -
 
-    # Apply frontend with new image tag
+    # Apply frontend with new image (substitute both tag and full image path)
     - |
       cat k8s/frontend.yml | \
-        sed "s|image:.*frontend:latest|image: ${FRONTEND_IMAGE}:${CI_COMMIT_SHORT_SHA}|" | \
+        sed "s|image:.*frontend.*|image: ${FRONTEND_IMAGE}:${CI_COMMIT_SHORT_SHA}|" | \
         kubectl apply -f -
 
     # Apply ingress
@@ -260,16 +260,16 @@ deploy-production:
     - kubectl apply -f k8s/postgres.yml
     - kubectl rollout status statefulset/mytrackify-db -n ${KUBE_NAMESPACE} --timeout=120s || true
 
-    # Apply backend with new image tag
+    # Apply backend with new image (substitute both tag and full image path)
     - |
       cat k8s/backend.yml | \
-        sed "s|image:.*backend:latest|image: ${BACKEND_IMAGE}:${CI_COMMIT_SHORT_SHA}|" | \
+        sed "s|image:.*backend.*|image: ${BACKEND_IMAGE}:${CI_COMMIT_SHORT_SHA}|" | \
         kubectl apply -f -
 
-    # Apply frontend with new image tag
+    # Apply frontend with new image (substitute both tag and full image path)
     - |
       cat k8s/frontend.yml | \
-        sed "s|image:.*frontend:latest|image: ${FRONTEND_IMAGE}:${CI_COMMIT_SHORT_SHA}|" | \
+        sed "s|image:.*frontend.*|image: ${FRONTEND_IMAGE}:${CI_COMMIT_SHORT_SHA}|" | \
         kubectl apply -f -
 
     # Apply ingress

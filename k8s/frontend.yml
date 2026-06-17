@@ -31,7 +31,7 @@ spec:
         - name: gitlab-registry
       containers:
         - name: frontend
-          image: registry.gitlab.com/dhrishit04/mytrackify/frontend:latest
+          image: ${CI_REGISTRY_IMAGE}/frontend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80

@@ -1,0 +1,10 @@
+# ============================================
+# Namespace — Isolated environment for MyTrackify
+# ============================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mytrackify
+  labels:
+    app: mytrackify
+    environment: production

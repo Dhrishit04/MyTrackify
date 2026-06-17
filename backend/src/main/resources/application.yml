@@ -78,7 +78,7 @@ spring:
 
 ---
 # ============================================
-# Prod Profile — PostgreSQL
+# Prod Profile — PostgreSQL (Docker / K8s)
 # ============================================
 spring:
   config:
@@ -86,10 +86,10 @@ spring:
       on-profile: prod
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/mytrackify
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/mytrackify}
     driver-class-name: org.postgresql.Driver
-    username: mytrackify_admin
-    password: mytrackify_pass_2025
+    username: ${SPRING_DATASOURCE_USERNAME:mytrackify_admin}
+    password: ${SPRING_DATASOURCE_PASSWORD:mytrackify_pass_2025}
 
   flyway:
     enabled: false  # Using JPA ddl-auto for now; switch to Flyway for production deployments

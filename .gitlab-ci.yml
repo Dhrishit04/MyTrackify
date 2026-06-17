@@ -1,11 +1,11 @@
 # ============================================
-# MyTrackify — GitLab CI/CD Pipeline
+# MyTrackify — GitLab CI/CD Pipeline (Kubernetes)
 # ============================================
 # Stages:
 #   1. build   — Compile backend (Maven) + frontend (Vite)
 #   2. test    — Run backend unit tests + frontend lint
-#   3. docker  — Build & push Docker images to GitLab registry
-#   4. deploy  — Deploy to production (manual trigger)
+#   3. docker  — Build & push Docker images to GitLab Container Registry
+#   4. deploy  — Deploy to Kubernetes cluster (manual trigger)
 # ============================================
 
 stages:
@@ -15,17 +15,19 @@ stages:
   - deploy
 
 # --------------------------------------------
-# Global defaults
+# Global variables
 # --------------------------------------------
-default:
-  image: docker:24.0.5
-  services:
-    - docker:24.0.5-dind
-  tags:
-    - docker
-  before_script:
-    - echo "CI_PIPELINE_ID=$CI_PIPELINE_ID"
-    - echo "CI_COMMIT_SHA=$CI_COMMIT_SHA"
+variables:
+  # Registry images
+  BACKEND_IMAGE: "${CI_REGISTRY_IMAGE}/backend"
+  FRONTEND_IMAGE: "${CI_REGISTRY_IMAGE}/frontend"
+  # Kubernetes
+  KUBE_NAMESPACE: "mytrackify"
+  # Docker-in-Docker
+  DOCKER_HOST: tcp://docker:2376
+  DOCKER_TLS_CERTDIR: "/certs"
+  DOCKER_TLS_VERIFY: 1
+  DOCKER_CERT_PATH: "/certs/client"
 
 # --------------------------------------------
 # Cache — speed up repeated pipeline runs
@@ -117,81 +119,170 @@ test-frontend:
 # DOCKER STAGE — Build & push images
 # ============================================
 
-.docker-variables: &docker-variables
-  DOCKER_HOST: tcp://docker:2376
-  DOCKER_TLS_CERTDIR: "/certs"
-  DOCKER_TLS_VERIFY: 1
-  DOCKER_CERT_PATH: "/certs/client"
+.docker-login: &docker-login
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
 
 docker-build-backend:
   stage: docker
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
   needs:
     - build-backend
     - test-backend
-  variables:
-    <<: *docker-variables
-    IMAGE_TAG: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA
-    LATEST_TAG: $CI_REGISTRY_IMAGE/backend:latest
-  before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  <<: *docker-login
   script:
     - cd backend
     - mvn package -DskipTests -B
-    - docker build -t $IMAGE_TAG -t $LATEST_TAG -f ../docker/backend.Dockerfile .
-    - docker push $IMAGE_TAG
-    - docker push $LATEST_TAG
+    - |
+      docker build \
+        -t ${BACKEND_IMAGE}:${CI_COMMIT_SHORT_SHA} \
+        -t ${BACKEND_IMAGE}:latest \
+        -f ../docker/backend.Dockerfile .
+    - docker push ${BACKEND_IMAGE}:${CI_COMMIT_SHORT_SHA}
+    - docker push ${BACKEND_IMAGE}:latest
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
     - if: '$CI_COMMIT_BRANCH == "develop"'
 
 docker-build-frontend:
   stage: docker
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
   needs:
     - build-frontend
     - test-frontend
-  variables:
-    <<: *docker-variables
-    IMAGE_TAG: $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA
-    LATEST_TAG: $CI_REGISTRY_IMAGE/frontend:latest
-  before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  <<: *docker-login
   script:
     - cd frontend
-    - docker build -t $IMAGE_TAG -t $LATEST_TAG -f ../docker/frontend.Dockerfile .
-    - docker push $IMAGE_TAG
-    - docker push $LATEST_TAG
+    - |
+      docker build \
+        -t ${FRONTEND_IMAGE}:${CI_COMMIT_SHORT_SHA} \
+        -t ${FRONTEND_IMAGE}:latest \
+        -f ../docker/frontend.Dockerfile .
+    - docker push ${FRONTEND_IMAGE}:${CI_COMMIT_SHORT_SHA}
+    - docker push ${FRONTEND_IMAGE}:latest
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
     - if: '$CI_COMMIT_BRANCH == "develop"'
 
 # ============================================
-# DEPLOY STAGE — Manual production deploy
+# DEPLOY STAGE — Kubernetes rollout
 # ============================================
 
-deploy-production:
+deploy-staging:
   stage: deploy
+  image: bitnami/kubectl:1.29
   needs:
     - docker-build-backend
     - docker-build-frontend
-  variables:
-    <<: *docker-variables
+  environment:
+    name: staging
+    url: https://staging.mytrackify.com
   before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-    - apk add --no-cache openssh-client
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
-    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
-    - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+    - kubectl config use-context ${KUBE_CONTEXT_STAGING}
   script:
-    - ssh $DEPLOY_USER@$DEPLOY_HOST "
-        cd /opt/mytrackify &&
-        docker compose -f docker-compose.prod.yml pull &&
-        docker compose -f docker-compose.prod.yml up -d --remove-orphans &&
-        docker system prune -f
-      "
+    - |
+      echo "=== Deploying to Staging ==="
+      echo "Backend image: ${BACKEND_IMAGE}:${CI_COMMIT_SHORT_SHA}"
+      echo "Frontend image: ${FRONTEND_IMAGE}:${CI_COMMIT_SHORT_SHA}"
+
+    # Apply namespace
+    - kubectl apply -f k8s/namespace.yml
+
+    # Apply secrets (idempotent)
+    - kubectl apply -f k8s/secrets.yml
+
+    # Apply configmap
+    - kubectl apply -f k8s/configmap.yml
+
+    # Apply database (StatefulSet — only created once, safe to re-apply)
+    - kubectl apply -f k8s/postgres.yml
+
+    # Wait for DB to be ready
+    - kubectl rollout status statefulset/mytrackify-db -n ${KUBE_NAMESPACE} --timeout=120s || true
+
+    # Apply backend with new image tag
+    - |
+      cat k8s/backend.yml | \
+        sed "s|image:.*backend:latest|image: ${BACKEND_IMAGE}:${CI_COMMIT_SHORT_SHA}|" | \
+        kubectl apply -f -
+
+    # Apply frontend with new image tag
+    - |
+      cat k8s/frontend.yml | \
+        sed "s|image:.*frontend:latest|image: ${FRONTEND_IMAGE}:${CI_COMMIT_SHORT_SHA}|" | \
+        kubectl apply -f -
+
+    # Apply ingress
+    - kubectl apply -f k8s/ingress.yml
+
+    # Wait for rollouts
+    - kubectl rollout status deployment/mytrackify-backend -n ${KUBE_NAMESPACE} --timeout=300s
+    - kubectl rollout status deployment/mytrackify-frontend -n ${KUBE_NAMESPACE} --timeout=120s
+
+    # Verify
+    - kubectl get pods -n ${KUBE_NAMESPACE}
+    - kubectl get svc -n ${KUBE_NAMESPACE}
+    - kubectl get ingress -n ${KUBE_NAMESPACE}
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+
+deploy-production:
+  stage: deploy
+  image: bitnami/kubectl:1.29
+  needs:
+    - docker-build-backend
+    - docker-build-frontend
   environment:
     name: production
     url: https://mytrackify.com
+  before_script:
+    - kubectl config use-context ${KUBE_CONTEXT_PRODUCTION}
+  script:
+    - |
+      echo "=== Deploying to Production ==="
+      echo "Backend image: ${BACKEND_IMAGE}:${CI_COMMIT_SHORT_SHA}"
+      echo "Frontend image: ${FRONTEND_IMAGE}:${CI_COMMIT_SHORT_SHA}"
+
+    # Apply namespace
+    - kubectl apply -f k8s/namespace.yml
+
+    # Apply secrets
+    - kubectl apply -f k8s/secrets.yml
+
+    # Apply configmap
+    - kubectl apply -f k8s/configmap.yml
+
+    # Apply database
+    - kubectl apply -f k8s/postgres.yml
+    - kubectl rollout status statefulset/mytrackify-db -n ${KUBE_NAMESPACE} --timeout=120s || true
+
+    # Apply backend with new image tag
+    - |
+      cat k8s/backend.yml | \
+        sed "s|image:.*backend:latest|image: ${BACKEND_IMAGE}:${CI_COMMIT_SHORT_SHA}|" | \
+        kubectl apply -f -
+
+    # Apply frontend with new image tag
+    - |
+      cat k8s/frontend.yml | \
+        sed "s|image:.*frontend:latest|image: ${FRONTEND_IMAGE}:${CI_COMMIT_SHORT_SHA}|" | \
+        kubectl apply -f -
+
+    # Apply ingress
+    - kubectl apply -f k8s/ingress.yml
+
+    # Wait for rollouts
+    - kubectl rollout status deployment/mytrackify-backend -n ${KUBE_NAMESPACE} --timeout=300s
+    - kubectl rollout status deployment/mytrackify-frontend -n ${KUBE_NAMESPACE} --timeout=120s
+
+    # Verify
+    - kubectl get pods -n ${KUBE_NAMESPACE}
+    - kubectl get svc -n ${KUBE_NAMESPACE}
+    - kubectl get ingress -n ${KUBE_NAMESPACE}
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: manual

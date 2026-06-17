@@ -29,23 +29,6 @@ variables:
   DOCKER_TLS_VERIFY: 1
   DOCKER_CERT_PATH: "/certs/client"
 
-# --------------------------------------------
-# Cache — speed up repeated pipeline runs
-# --------------------------------------------
-.maven-cache: &maven-cache
-  key:
-    files:
-      - backend/pom.xml
-  paths:
-    - backend/.m2/repository/
-
-.npm-cache: &npm-cache
-  key:
-    files:
-      - frontend/package-lock.json
-  paths:
-    - frontend/node_modules/
-
 # ============================================
 # BUILD STAGE
 # ============================================
@@ -53,7 +36,6 @@ variables:
 build-backend:
   stage: build
   image: maven:3.9.6-eclipse-temurin-17-alpine
-  <<: *maven-cache
   script:
     - cd backend
     - mvn compile -B -DskipTests
@@ -62,13 +44,16 @@ build-backend:
       - backend/target/
     expire_in: 1 hour
   cache:
-    <<: *maven-cache
+    key:
+      files:
+        - backend/pom.xml
+    paths:
+      - backend/.m2/repository/
     policy: pull-push
 
 build-frontend:
   stage: build
   image: node:20-alpine
-  <<: *npm-cache
   script:
     - cd frontend
     - npm ci --prefer-offline
@@ -78,7 +63,11 @@ build-frontend:
       - frontend/dist/
     expire_in: 1 hour
   cache:
-    <<: *npm-cache
+    key:
+      files:
+        - frontend/package-lock.json
+    paths:
+      - frontend/node_modules/
     policy: pull-push
 
 # ============================================
@@ -91,7 +80,11 @@ test-backend:
   needs:
     - build-backend
   cache:
-    <<: *maven-cache
+    key:
+      files:
+        - backend/pom.xml
+    paths:
+      - backend/.m2/repository/
     policy: pull
   script:
     - cd backend
@@ -109,7 +102,11 @@ test-frontend:
   needs:
     - build-frontend
   cache:
-    <<: *npm-cache
+    key:
+      files:
+        - frontend/package-lock.json
+    paths:
+      - frontend/node_modules/
     policy: pull
   script:
     - cd frontend

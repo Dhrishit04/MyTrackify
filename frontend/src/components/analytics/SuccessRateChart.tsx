@@ -10,7 +10,19 @@ interface SuccessRateChartProps {
   title?: string;
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+interface TooltipPayload {
+  payload: {
+    roundNumber: number;
+    roundType: string;
+    totalAttempts: number;
+    passedCount: number;
+    failedCount: number;
+    eliminationRate: number;
+  };
+  value: number;
+}
+
+const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: TooltipPayload[]; label?: string }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     return (

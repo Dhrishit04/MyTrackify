@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ' *)",
+      "Bash(curl -s \"https://gitlab.com/api/v4/projects/Dhrishit04%2FMyTrackify/pipelines/2608206127\")",
+      "Bash(curl -s \"https://gitlab.com/api/v4/projects/Dhrishit04%2FMyTrackify/runners?per_page=10\")",
+      "Bash(cat /etc/gitlab-runner/config.toml 2>&1)",
+      "Read(//etc/gitlab-runner/**)",
+      "Bash(sudo cat /etc/gitlab-runner/config.toml)"
+    ]
+  }
+}

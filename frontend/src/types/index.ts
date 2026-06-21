@@ -252,6 +252,19 @@ export interface LogRoundData {
   preparationTips: string;
 }
 
+// --- Auth Context ---
+export interface AuthContextType {
+  user: StudentProfile | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  isAdmin: boolean;
+  login: (credentials: LoginRequest) => Promise<StudentProfile>;
+  register: (data: RegisterRequest) => Promise<void>;
+  logout: () => void;
+  error: string | null;
+  clearError: () => void;
+}
+
 // --- Filters ---
 export interface CompanyFilters {
   search: string;

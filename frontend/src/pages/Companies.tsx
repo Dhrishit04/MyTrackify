@@ -17,7 +17,6 @@ const sortOptions = [
 
 export default function Companies() {
   const [companies, setCompanies] = useState<Company[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<CompanyFilters>({
     search: '',
     sector: 'all',
@@ -25,12 +24,19 @@ export default function Companies() {
     sortOrder: 'asc',
   });
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    companyService.getCompanies(filters)
-      .then(setCompanies)
-      .finally(() => setLoading(false));
+    let cancelled = false;
+    const fetchCompanies = async () => {
+      const data = await companyService.getCompanies(filters);
+      if (!cancelled) {
+        setCompanies(data);
+        setIsLoadingCompanies(false);
+      }
+    };
+    fetchCompanies();
+    return () => { cancelled = true; };
   }, [filters]);
 
   const updateFilter = (key: keyof CompanyFilters, value: string) => {
@@ -122,7 +128,7 @@ export default function Companies() {
       <p className="text-sm text-surface-400">{companies.length} companies found</p>
 
       {/* Company Grid */}
-      {loading ? (
+      {isLoadingCompanies ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="h-64 rounded-2xl shimmer" />

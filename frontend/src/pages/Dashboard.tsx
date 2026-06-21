@@ -13,7 +13,12 @@ import { useAuth } from '../hooks/useAuth';
 import type { DashboardStats, ApplicationJourney } from '../types';
 import { userJourneys } from '../services/mockData';
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+interface TooltipPayload {
+  payload: { name: string; value: number };
+  value: number;
+}
+
+const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: TooltipPayload[]; label?: string }) => {
   if (active && payload && payload.length) {
     return (
       <div className="glass-strong rounded-lg p-3 border border-white/10 shadow-xl">
@@ -224,7 +229,7 @@ export default function Dashboard() {
                     <p className="text-xs text-surface-400">{journey.applicationType} · {journey.applicationDate}</p>
                   </div>
                 </div>
-                <Badge variant={outcomeVariant(journey.finalOutcome) as any}>
+                <Badge variant={outcomeVariant(journey.finalOutcome) as 'selected' | 'rejected' | 'in-progress' | 'withdrew' | 'sector'}>
                   {journey.finalOutcome}
                 </Badge>
               </div>

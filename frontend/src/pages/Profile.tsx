@@ -158,7 +158,7 @@ export default function Profile() {
                     {j.compensationOffered ? `${j.compensationOffered} LPA` : '—'}
                   </td>
                   <td className="py-3">
-                    <Badge variant={outcomeVariant(j.finalOutcome) as any}>{j.finalOutcome}</Badge>
+                    <Badge variant={outcomeVariant(j.finalOutcome) as 'selected' | 'rejected' | 'in-progress' | 'withdrew' | 'sector'}>{j.finalOutcome}</Badge>
                   </td>
                 </tr>
               ))}

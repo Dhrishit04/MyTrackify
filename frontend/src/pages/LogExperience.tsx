@@ -47,7 +47,7 @@ export default function LogExperience() {
     }
   };
 
-  const updateRound = (index: number, field: keyof LogRoundData, value: any) => {
+  const updateRound = (index: number, field: keyof LogRoundData, value: string | number | string[]) => {
     setRounds(prev => prev.map((r, i) => i === index ? { ...r, [field]: value } : r));
   };
 
@@ -93,7 +93,7 @@ export default function LogExperience() {
         companyId,
         applicationType,
         applicationDate,
-        finalOutcome: finalOutcome as any,
+        finalOutcome: finalOutcome as 'Selected' | 'Rejected' | 'In Progress' | 'Withdrew',
         rounds,
       });
       setSubmitted(true);
@@ -201,7 +201,7 @@ export default function LogExperience() {
                 {['On-Campus', 'Off-Campus'].map((type) => (
                   <button
                     key={type}
-                    onClick={() => setApplicationType(type as any)}
+                    onClick={() => setApplicationType(type as 'On-Campus' | 'Off-Campus')}
                     className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-all ${
                       applicationType === type
                         ? 'bg-primary-600/20 border border-primary-500/30 text-primary-300'

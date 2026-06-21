@@ -31,3 +31,10 @@ backend/target/
 *.swo
 *~
 CAMPUS_PLACEMENT_INTELLIGENCE_PLATFORM.md
+
+
+#Others
+docker-build-backend.txt
+docker-build-frontend.txt
+test-backend.txt
+test-frontend.txt

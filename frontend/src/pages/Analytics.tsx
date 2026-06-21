@@ -12,13 +12,19 @@ import type { ReadinessAnalysis } from '../types';
 export default function Analytics() {
   const [readiness, setReadiness] = useState<ReadinessAnalysis | null>(null);
   const [selectedCompany, setSelectedCompany] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [isLoadingReadiness, setIsLoadingReadiness] = useState(true);
 
   useEffect(() => {
-    setLoading(true);
-    analyticsService.getReadiness(selectedCompany)
-      .then(setReadiness)
-      .finally(() => setLoading(false));
+    let cancelled = false;
+    const fetchReadiness = async () => {
+      const data = await analyticsService.getReadiness(selectedCompany);
+      if (!cancelled) {
+        setReadiness(data);
+        setIsLoadingReadiness(false);
+      }
+    };
+    fetchReadiness();
+    return () => { cancelled = true; };
   }, [selectedCompany]);
 
   const companyName = companies.find(c => c.id === selectedCompany)?.name || 'Unknown';
@@ -84,7 +90,7 @@ export default function Analytics() {
         </div>
       </div>
 
-      {loading ? (
+      {isLoadingReadiness ? (
         <div className="space-y-6">
           <div className="h-40 rounded-2xl shimmer" />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

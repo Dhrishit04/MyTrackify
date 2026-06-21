@@ -11,6 +11,7 @@ Dependencies:
 *.iml
 .vscode/
 *.code-workspace
+.claude
 
 # Environment
 .env

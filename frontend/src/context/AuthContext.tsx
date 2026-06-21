@@ -2,11 +2,10 @@
 // Auth Context & Provider
 // ============================================
 
-import { createContext, useState, useCallback, useEffect, type ReactNode } from 'react';
-import type { StudentProfile, LoginRequest, RegisterRequest, AuthContextType } from '../types';
+import { useState, useCallback, useEffect, type ReactNode } from 'react';
+import type { StudentProfile, LoginRequest, RegisterRequest } from '../types';
 import { authService } from '../services/authService';
-
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import { AuthContext } from './authContextData';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<StudentProfile | null>(null);

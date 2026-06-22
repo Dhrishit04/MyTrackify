@@ -169,6 +169,8 @@ docker-build-frontend:
 
 deploy-staging:
   stage: deploy
+  tags:
+    - mytrackify
   image:
     name: bitnami/kubectl:latest
     entrypoint: [""]
@@ -231,6 +233,8 @@ deploy-staging:
 
 deploy-production:
   stage: deploy
+  tags:
+    - mytrackify
   image:
     name: bitnami/kubectl:latest
     entrypoint: [""]

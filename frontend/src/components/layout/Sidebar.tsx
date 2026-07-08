@@ -44,7 +44,7 @@ export default function Sidebar() {
     <aside
       className={`${
         collapsed ? 'w-[72px]' : 'w-64'
-      } h-screen glass-strong border-r border-white/5 flex flex-col transition-all duration-300 sticky top-0 z-50`}
+      } h-full min-h-screen glass-strong border-r border-white/5 flex flex-col transition-all duration-300 sticky top-0 z-50`}
     >
       {/* Logo & Brand */}
       <div className="h-16 flex items-center px-4 border-b border-white/5">

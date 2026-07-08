@@ -87,7 +87,7 @@ export default function ExperienceCard({ experience, index = 0 }: ExperienceCard
 
       {/* Questions Preview / Full */}
       <div className="mb-3">
-        <p className="text-sm text-surface-200 leading-relaxed whitespace-pre-line">
+        <p className="text-sm text-surface-200 leading-relaxed whitespace-pre-line break-words overflow-wrap-anywhere">
           {expanded ? experience.questionsAsked : experience.questionsAsked.slice(0, 200) + (experience.questionsAsked.length > 200 ? '...' : '')}
         </p>
       </div>

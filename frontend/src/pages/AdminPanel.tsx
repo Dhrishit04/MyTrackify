@@ -228,7 +228,7 @@ export default function AdminPanel() {
             </button>
           </div>
 
-          <div className="rounded-xl border border-white/[0.06] overflow-hidden">
+          <div className="rounded-xl border border-white/[0.06] overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-surface-900/80 border-b border-white/[0.06]">
@@ -361,7 +361,7 @@ export default function AdminPanel() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-white/[0.06] overflow-hidden">
+          <div className="rounded-xl border border-white/[0.06] overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-surface-900/80 border-b border-white/[0.06]">

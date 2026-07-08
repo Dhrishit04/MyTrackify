@@ -83,9 +83,9 @@ export default function Register() {
   const displayError = localError || error;
 
   return (
-    <div className="min-h-screen h-screen flex flex-col md:flex-row overflow-hidden">
+    <div className="min-h-dvh flex flex-col md:flex-row overflow-y-auto">
       {/* Left — Branding Panel */}
-      <div className="relative md:w-[55%] min-h-[200px] md:min-h-0 flex-shrink-0 flex items-center justify-center p-6 md:p-12 overflow-hidden"
+      <div className="relative md:w-[55%] min-h-[200px] md:min-h-0 flex-shrink-0 flex items-start md:items-center justify-center p-6 md:p-12 overflow-hidden"
         style={{
           background: 'radial-gradient(ellipse at 30% 40%, rgba(99,102,241,0.18) 0%, transparent 60%), radial-gradient(ellipse at 70% 80%, rgba(6,182,212,0.12) 0%, transparent 50%), #08081a',
         }}>

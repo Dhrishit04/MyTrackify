@@ -20,7 +20,8 @@ export default function SkillRadar({ data, title }: SkillRadarProps) {
   return (
     <div className="glass rounded-2xl p-5 border border-white/5">
       {title && <h3 className="text-md font-semibold text-white mb-4">{title}</h3>}
-      <ResponsiveContainer width="100%" height={320}>
+      <div className="w-full min-h-[320px]">
+        <ResponsiveContainer width="100%" height={320}>
         <RadarChart data={data} cx="50%" cy="50%" outerRadius="70%">
           <PolarGrid stroke="rgba(255,255,255,0.08)" />
           <PolarAngleAxis
@@ -54,6 +55,7 @@ export default function SkillRadar({ data, title }: SkillRadarProps) {
           />
         </RadarChart>
       </ResponsiveContainer>
+      </div>
     </div>
   );
 }

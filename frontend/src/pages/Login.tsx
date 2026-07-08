@@ -26,7 +26,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen h-screen relative overflow-hidden flex flex-col" style={{
+    <div className="min-h-dvh relative overflow-hidden flex flex-col" style={{
       background: 'radial-gradient(ellipse at 30% 20%, rgba(99,102,241,0.12) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(6,182,212,0.08) 0%, transparent 50%), #060614',
     }}>
       {/* Animated background orbs */}

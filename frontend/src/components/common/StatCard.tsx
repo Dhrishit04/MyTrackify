@@ -63,9 +63,7 @@ export default function StatCard({ title, value, icon, trend, suffix = '', color
 
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${colorMap[color]} border p-5 card-hover transition-all duration-500 ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-      }`}
+      className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${colorMap[color]} border p-5 card-hover transition-all duration-500 min-h-[120px] ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
     >
       {/* Background glow */}
       <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full bg-gradient-to-br ${colorMap[color]} opacity-30 blur-3xl`} />

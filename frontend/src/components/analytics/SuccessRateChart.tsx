@@ -54,7 +54,8 @@ export default function SuccessRateChart({ data, title }: SuccessRateChartProps)
   return (
     <div className="glass rounded-2xl p-5 border border-white/5">
       {title && <h3 className="text-md font-semibold text-white mb-4">{title}</h3>}
-      <ResponsiveContainer width="100%" height={280}>
+      <div className="w-full min-h-[280px]">
+        <ResponsiveContainer width="100%" height={280}>
         <BarChart data={chartData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
           <XAxis
@@ -76,6 +77,7 @@ export default function SuccessRateChart({ data, title }: SuccessRateChartProps)
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+      </div>
     </div>
   );
 }

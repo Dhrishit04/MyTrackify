@@ -137,7 +137,8 @@ export default function Dashboard() {
         {/* Applications Over Time */}
         <div className="lg:col-span-2 glass rounded-2xl p-5 border border-white/5">
           <h3 className="text-md font-semibold text-white mb-4">Applications Over Time</h3>
-          <ResponsiveContainer width="100%" height={260}>
+          <div className="w-full min-h-[260px]">
+            <ResponsiveContainer width="100%" height={260}>
             <BarChart data={stats.applicationsByMonth}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
               <XAxis dataKey="name" tick={{ fill: '#9090b8', fontSize: 12 }} axisLine={{ stroke: 'rgba(255,255,255,0.1)' }} />
@@ -150,12 +151,14 @@ export default function Dashboard() {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+          </div>
         </div>
 
         {/* Outcome Distribution */}
         <div className="glass rounded-2xl p-5 border border-white/5">
           <h3 className="text-md font-semibold text-white mb-4">Outcome Distribution</h3>
-          <ResponsiveContainer width="100%" height={200}>
+          <div className="w-full min-h-[200px]">
+            <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie
                 data={stats.outcomeDistribution}
@@ -174,6 +177,8 @@ export default function Dashboard() {
               />
             </PieChart>
           </ResponsiveContainer>
+          </div>
+          {stats.outcomeDistribution.length > 0 && (
           <div className="flex flex-wrap gap-3 justify-center">
             {stats.outcomeDistribution.map((item) => (
               <div key={item.name} className="flex items-center gap-1.5 text-xs">
@@ -182,6 +187,7 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
+          )}
         </div>
       </div>
 

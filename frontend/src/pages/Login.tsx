@@ -98,9 +98,9 @@ export default function Login() {
             <div className="rounded-2xl border border-white/[0.08] p-6 sm:p-8 backdrop-blur-xl"
               style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)' }}>
 
-              <div className="mb-6 lg:mb-7">
-                <h2 className="text-xl font-bold text-white mb-1 tracking-tight">Welcome back</h2>
-                <p className="text-surface-400 text-sm">Sign in to your placement dashboard</p>
+              <div className="mb-8">
+                <h2 className="text-xl font-bold text-white mb-2 tracking-tight">Welcome back</h2>
+                <p className="text-surface-200 text-sm">Sign in to your placement dashboard</p>
               </div>
 
               {error && (
@@ -110,43 +110,43 @@ export default function Login() {
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <label className="block text-xs font-medium text-surface-300 mb-1.5 uppercase tracking-wider" htmlFor="login-email">
+                  <label className="block text-xs font-medium text-surface-200 mb-2 uppercase tracking-wider" htmlFor="login-email">
                     Email
                   </label>
                   <div className="relative group">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-500 group-focus-within:text-primary-400 transition-colors" />
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-300 group-focus-within:text-primary-400 transition-colors" />
                     <input
                       id="login-email"
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@college.edu"
-                      className="input-dark w-full pl-10 pr-4 py-2.5 rounded-lg text-sm"
+                      className="input-dark w-full pl-11 pr-4 py-2.5 rounded-lg text-sm"
                       required
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-surface-300 mb-1.5 uppercase tracking-wider" htmlFor="login-password">
+                  <label className="block text-xs font-medium text-surface-200 mb-2 uppercase tracking-wider" htmlFor="login-password">
                     Password
                   </label>
                   <div className="relative group">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-500 group-focus-within:text-primary-400 transition-colors" />
+                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-surface-300 group-focus-within:text-primary-400 transition-colors" />
                     <input
                       id="login-password"
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="input-dark w-full pl-10 pr-10 py-2.5 rounded-lg text-sm"
+                      className="input-dark w-full pl-11 pr-11 py-2.5 rounded-lg text-sm"
                       required
                       minLength={6}
                     />
                     <button type="button" onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-surface-500 hover:text-surface-200 transition-colors" tabIndex={-1}>
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-surface-300 hover:text-surface-100 hover:bg-surface-700/60 rounded-md p-1 transition-colors" tabIndex={-1} aria-label={showPassword ? 'Hide password' : 'Show password'}>
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
@@ -162,9 +162,9 @@ export default function Login() {
                 </button>
               </form>
 
-              <p className="text-center text-sm text-surface-500 mt-6">
+              <p className="text-center text-sm text-surface-300 mt-6">
                 New to MyTrackify?{' '}
-                <Link to="/register" className="text-primary-400 hover:text-primary-300 font-medium transition-colors">
+                <Link to="/register" className="text-primary-400 hover:text-primary-300 font-medium transition-colors hover:underline underline-offset-4">
                   Create account
                 </Link>
               </p>

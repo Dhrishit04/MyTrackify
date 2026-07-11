@@ -6,9 +6,18 @@ spring:
   application:
     name: mytrackify
 
-  # Switch to 'dev' for H2 in-memory, 'prod' for PostgreSQL
+  # Default profile is 'dev' (H2 in-memory, no external DB) so the app
+  # starts anywhere out-of-the-box. On the Mac, where PostgreSQL is
+  # available, run with SPRING_PROFILES_ACTIVE=prod to use PostgreSQL.
   profiles:
-    active: prod
+    active: dev
+
+  # Flyway is disabled globally. The schema is managed via JPA ddl-auto,
+  # and the only migration script (V1) is PostgreSQL-specific. Disabling
+  # it here prevents Flyway from auto-running that Postgres script against
+  # the embedded H2 datasource when no specific profile document is active.
+  flyway:
+    enabled: false
 
   jpa:
     hibernate:
@@ -66,9 +75,6 @@ spring:
       enabled: true
       path: /h2-console
 
-  flyway:
-    enabled: false  # Disabled for dev — using JPA auto DDL
-
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -90,9 +96,6 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: ${SPRING_DATASOURCE_USERNAME:mytrackify_admin}
     password: ${SPRING_DATASOURCE_PASSWORD:mytrackify_pass_2025}
-
-  flyway:
-    enabled: false  # Using JPA ddl-auto for now; switch to Flyway for production deployments
 
   jpa:
     hibernate:

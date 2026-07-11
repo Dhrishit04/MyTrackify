@@ -5,23 +5,23 @@
    ============================================ */
 
 @theme {
-  /* Primary palette — deep navy to cosmic purple */
-  --color-primary-50: #eef2ff;
-  --color-primary-100: #e0e7ff;
-  --color-primary-200: #c7d2fe;
-  --color-primary-300: #a5b4fc;
-  --color-primary-400: #818cf8;
-  --color-primary-500: #6366f1;
-  --color-primary-600: #4f46e5;
-  --color-primary-700: #4338ca;
-  --color-primary-800: #3730a3;
-  --color-primary-900: #312e81;
-  --color-primary-950: #1e1b4b;
+  /* Primary palette — emerald (replaces the old indigo/violet) */
+  --color-primary-50: #ecfdf5;
+  --color-primary-100: #d1fae5;
+  --color-primary-200: #a7f3d0;
+  --color-primary-300: #6ee7b7;
+  --color-primary-400: #34d399;
+  --color-primary-500: #10b981;
+  --color-primary-600: #059669;
+  --color-primary-700: #047857;
+  --color-primary-800: #065f46;
+  --color-primary-900: #064e3b;
+  --color-primary-950: #022c22;
 
-  /* Accent — vibrant cyan */
-  --color-accent-400: #22d3ee;
-  --color-accent-500: #06b6d4;
-  --color-accent-600: #0891b2;
+  /* Accent — teal */
+  --color-accent-400: #2dd4bf;
+  --color-accent-500: #14b8a6;
+  --color-accent-600: #0d9488;
 
   /* Success — emerald */
   --color-success-400: #34d399;
@@ -101,10 +101,12 @@
    Base Styles
    ============================================ */
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 }
 
 html {
@@ -224,8 +226,8 @@ body {
 
 /* Input styles */
 .input-dark {
-  background: rgba(18, 18, 43, 0.8);
-  border: 1px solid #5e5e96;
+  background: #232352;
+  border: 1px solid #8b8bc0;
   color: #e2e8f0;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -233,11 +235,11 @@ body {
 .input-dark:focus {
   outline: none;
   border-color: var(--color-primary-400);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35);
 }
 
 .input-dark::placeholder {
-  color: var(--color-surface-300);
+  color: var(--color-surface-200);
 }
 
 /* Shimmer loading */

@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import {
   Users, Building2, FileText, TrendingUp, Search,
   Shield, Activity, AlertTriangle, CheckCircle2, XCircle, RefreshCw,
-  UserCog, ClipboardList, Bell, Flag, Eye,
+  UserCog, ClipboardList, Bell, Flag, Eye, Plus,
 } from 'lucide-react';
 import { adminService } from '../services/adminService';
 import type {

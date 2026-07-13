@@ -35,8 +35,8 @@ backend/target/
 
 
 #Others
-docker-build-backend.txt
-docker-build-frontend.txt
+build-backend.txt
+build-frontend.txt
 test-backend.txt
 test-frontend.txt
 ADMIN_ROLE_HIERARCHY_AND_RBAC.md

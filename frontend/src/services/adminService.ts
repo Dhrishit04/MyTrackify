@@ -8,6 +8,8 @@ import type {
   Company,
   StudentProfile,
   InterviewExperience,
+  PlacementReport,
+  ModerationQueueItem,
   FlagExperienceRequest,
   RevisionRequest,
   NotificationRequest,
@@ -78,12 +80,12 @@ export const adminService = {
     return res.data.data;
   },
 
-  async getModerationQueue(page = 0, size = 20): Promise<{ content: InterviewExperience[]; totalElements: number }> {
+  async getModerationQueue(page = 0, size = 20): Promise<{ content: ModerationQueueItem[]; totalElements: number }> {
     const res = await api.get('/admin/moderation/queue', { params: { page, size } });
     return res.data.data;
   },
 
-  async getPlacementReport(): Promise<{ byCompany: any[]; totalApplications: number; totalOffers: number; successRate: number }> {
+  async getPlacementReport(): Promise<PlacementReport> {
     const res = await api.get('/admin/reports/placement');
     return res.data.data;
   },

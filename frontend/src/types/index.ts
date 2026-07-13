@@ -96,6 +96,30 @@ export interface AdminDashboardStats {
   totalAdmins: number;
 }
 
+export interface PlacementCompanyStat {
+  company: string;
+  successRate: number;
+  offers: number;
+  applications: number;
+}
+
+export interface PlacementReport {
+  byCompany: PlacementCompanyStat[];
+  totalApplications: number;
+  totalOffers: number;
+  successRate: number;
+}
+
+export interface ModerationQueueItem {
+  id: number;
+  flagReason?: string;
+}
+
+export interface ApiError {
+  response?: { data?: { message?: string } };
+  message?: string;
+}
+
 // --- Company ---
 export interface Company {
   id: number;

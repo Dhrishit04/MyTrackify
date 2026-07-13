@@ -9,9 +9,19 @@ import { adminService } from '../services/adminService';
 import type {
   AdminDashboardStats, AdminUserSummary, Company,
   StudentProfile, AuditLogEntry, AdminLevel,
+  PlacementReport, PlacementCompanyStat, ModerationQueueItem, ApiError,
 } from '../types';
 
 type Tab = 'overview' | 'students' | 'companies' | 'experiences' | 'users' | 'audit' | 'notifications';
+
+function getErrorMessage(e: unknown, fallback: string): string {
+  if (e && typeof e === 'object') {
+    const err = e as ApiError;
+    if (err.response?.data?.message) return err.response.data.message;
+    if (err.message) return err.message;
+  }
+  return fallback;
+}
 
 interface TabDef {
   id: Tab;
@@ -41,7 +51,7 @@ export default function AdminPanel() {
 
   // Data
   const [stats, setStats] = useState<AdminDashboardStats | null>(null);
-  const [placementReport, setPlacementReport] = useState<{ byCompany: any[]; totalApplications: number; totalOffers: number; successRate: number } | null>(null);
+  const [placementReport, setPlacementReport] = useState<PlacementReport | null>(null);
   const [students, setStudents] = useState<StudentProfile[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [adminUsers, setAdminUsers] = useState<AdminUserSummary[]>([]);
@@ -50,7 +60,7 @@ export default function AdminPanel() {
 
   // Role assignment
   const [assignUserId, setAssignUserId] = useState('');
-  const [assignLevel, setAssignLevel] = useState<string>('MODERATOR');
+  const [assignLevel, setAssignLevel] = useState<AdminLevel>('MODERATOR');
   const [assignScope, setAssignScope] = useState('ALL');
   const [assignFeedback, setAssignFeedback] = useState<string | null>(null);
 
@@ -59,12 +69,12 @@ export default function AdminPanel() {
     if (isNaN(uid)) return;
     setAssignFeedback(null);
     try {
-      await adminService.assignRole(uid, { level: assignLevel as any, scope: assignScope });
+      await adminService.assignRole(uid, { level: assignLevel, scope: assignScope });
       setAssignFeedback(`Role ${assignLevel} assigned to user #${uid}`);
       setAssignUserId('');
       adminService.getAdmins().then(setAdminUsers).catch(() => {});
-    } catch (e: any) {
-      setAssignFeedback(e?.response?.data?.message || 'Failed to assign role');
+    } catch (e) {
+      setAssignFeedback(getErrorMessage(e, 'Failed to assign role'));
     }
   }, [assignUserId, assignLevel, assignScope]);
 
@@ -72,8 +82,8 @@ export default function AdminPanel() {
     try {
       await adminService.revokeRole(studentId, { reason: 'Revoked via admin panel' });
       adminService.getAdmins().then(setAdminUsers).catch(() => {});
-    } catch (e: any) {
-      setError(e?.response?.data?.message || 'Failed to revoke role');
+    } catch (e) {
+      setError(getErrorMessage(e, 'Failed to revoke role'));
     }
   }, []);
 
@@ -115,7 +125,7 @@ export default function AdminPanel() {
             adminService.getPlacementReport().catch(() => ({ byCompany: [], totalApplications: 0, totalOffers: 0, successRate: 0 })),
           ]);
           setStats(dash);
-          setPlacementReport(report as any);
+          setPlacementReport(report);
           break;
         }
         case 'students':
@@ -138,13 +148,14 @@ export default function AdminPanel() {
         case 'notifications':
           break;
       }
-    } catch (err: any) {
-      setError(err?.response?.data?.message || err?.message || 'Failed to load data');
+    } catch (err) {
+      setError(getErrorMessage(err, 'Failed to load data'));
     } finally {
       setLoading(false);
     }
   }, [activeTab]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchData(); }, [fetchData]);
 
   if (!isAdmin) return null;
@@ -278,7 +289,7 @@ export default function AdminPanel() {
                 <span className="text-xs text-surface-400">Overall: {placementReport.successRate}%</span>
               </div>
               <div className="space-y-2">
-                {placementReport.byCompany.slice(0, 10).map((c: any) => (
+                {placementReport.byCompany.slice(0, 10).map((c: PlacementCompanyStat) => (
                   <div key={c.company} className="flex items-center gap-3">
                     <span className="text-xs text-surface-300 w-24 truncate text-right shrink-0">{c.company}</span>
                     <div className="flex-1 h-5 rounded-full bg-surface-800 overflow-hidden">
@@ -420,7 +431,7 @@ export default function AdminPanel() {
               </div>
               <div>
                 <label className="block text-xs text-surface-400 mb-1">Role</label>
-                <select value={assignLevel} onChange={e => setAssignLevel(e.target.value as any)}
+                <select value={assignLevel} onChange={e => setAssignLevel(e.target.value as AdminLevel)}
                   className="input-dark rounded-lg text-sm px-3 py-2.5">
                   <option value="MODERATOR">Moderator (20%)</option>
                   <option value="ASSOCIATE">Associate (45%)</option>
@@ -542,7 +553,7 @@ export default function AdminPanel() {
 /* ── Moderation Queue Tab ── */
 function ModerationQueueTab() {
   const { adminLevel, hasPermission } = useAuth();
-  const [queue, setQueue] = useState<any[]>([]);
+  const [queue, setQueue] = useState<ModerationQueueItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionFeedback, setActionFeedback] = useState<string | null>(null);
 
@@ -555,6 +566,7 @@ function ModerationQueueTab() {
     finally { setLoading(false); }
   }, []);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetchQueue(); }, [fetchQueue]);
 
   const canVerify = adminLevel && (hasPermission('EXPERIENCE:VERIFY') || (adminLevel === 'DIRECTOR' || adminLevel === 'SYSTEM_ADMIN'));
@@ -565,7 +577,7 @@ function ModerationQueueTab() {
       await adminService.verifyExperience(id);
       setActionFeedback(`Experience #${id} verified`);
       fetchQueue();
-    } catch (e: any) { setActionFeedback(e?.response?.data?.message || 'Verify failed'); }
+    } catch (e) { setActionFeedback(getErrorMessage(e, 'Verify failed')); }
   };
 
   const handleFlag = async (id: number) => {
@@ -573,7 +585,7 @@ function ModerationQueueTab() {
       await adminService.flagExperience(id, { reason: 'Flagged via admin panel' });
       setActionFeedback(`Experience #${id} flagged`);
       fetchQueue();
-    } catch (e: any) { setActionFeedback(e?.response?.data?.message || 'Flag failed'); }
+    } catch (e) { setActionFeedback(getErrorMessage(e, 'Flag failed')); }
   };
 
   if (loading) {
@@ -607,7 +619,7 @@ function ModerationQueueTab() {
             </tr>
           </thead>
           <tbody>
-            {queue.map((exp: any) => (
+            {queue.map((exp: ModerationQueueItem) => (
               <tr key={exp.id} className="border-b border-white/[0.04] hover:bg-surface-800/30 transition-colors">
                 <td className="px-4 py-3 text-surface-200 font-mono text-xs">#{exp.id}</td>
                 <td className="px-4 py-3 text-surface-400 text-xs max-w-[300px] truncate">{exp.flagReason || 'Flagged'}</td>

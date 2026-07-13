@@ -1,3 +1,5 @@
+import type { StudentProfile } from '../types';
+
 /**
  * Hybrid token store — sessionStorage for persistence across navigation,
  * with in-memory cache for fast reads. Avoids localStorage per spec.
@@ -6,7 +8,7 @@ const TOKEN_KEY = 'mytrackify_token';
 const USER_KEY = 'mytrackify_user';
 
 let _token: string | null = null;
-let _user: any = null;
+let _user: StudentProfile | null = null;
 
 function loadFromStorage() {
   try {
@@ -32,6 +34,6 @@ export const tokenStore = {
   getToken: (): string | null => _token,
   setToken: (t: string | null) => { _token = t; saveToStorage(); },
   getUser: <T>(): T | null => _user as T,
-  setUser: (u: any) => { _user = u; saveToStorage(); },
+  setUser: (u: StudentProfile | null) => { _user = u; saveToStorage(); },
   clear: () => { _token = null; _user = null; saveToStorage(); },
 };

@@ -1,7 +1,3 @@
-// ============================================
-// StatCard Component — Animated stat display
-// ============================================
-
 import { useEffect, useState, type ReactNode } from 'react';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 

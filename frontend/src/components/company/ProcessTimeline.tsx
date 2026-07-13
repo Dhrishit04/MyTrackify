@@ -1,7 +1,3 @@
-// ============================================
-// ProcessTimeline Component
-// ============================================
-
 import { Clock, Users, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import type { ProcessRound } from '../../types';
 

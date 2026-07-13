@@ -1,8 +1,3 @@
-// ============================================
-// MyTrackify — Mock Data
-// Realistic sample data for development
-// ============================================
-
 import type {
   Company,
   InterviewProcess,

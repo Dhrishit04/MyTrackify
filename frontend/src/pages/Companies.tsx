@@ -1,7 +1,3 @@
-// ============================================
-// Companies Page — Searchable company grid
-// ============================================
-
 import { useEffect, useState } from 'react';
 import { Search, SlidersHorizontal, Building2, Grid3X3, List } from 'lucide-react';
 import CompanyCard from '../components/company/CompanyCard';

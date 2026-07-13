@@ -1,7 +1,3 @@
-// ============================================
-// Sidebar Component — with admin support
-// ============================================
-
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -49,7 +45,7 @@ export default function Sidebar() {
       {/* Logo & Brand */}
       <div className="h-16 flex items-center px-4 border-b border-white/5">
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="min-w-[36px] h-9 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center">
+          <div className="min-w-[36px] h-9 rounded-lg bg-primary-500 flex items-center justify-center">
             <Sparkles className="w-5 h-5 text-white" />
           </div>
           {!collapsed && (

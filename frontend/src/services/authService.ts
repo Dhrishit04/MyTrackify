@@ -1,7 +1,3 @@
-// ============================================
-// Auth Service — Real API authentication
-// ============================================
-
 import api from './api';
 import type { AuthResponse, LoginRequest, RegisterRequest, StudentProfile } from '../types';
 

@@ -4,10 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
-/**
- * InterviewExperience entity — detailed experience log for a specific interview round.
- * Contains questions, topics, tips, and community voting.
- */
 @Entity
 @Table(name = "interview_experiences")
 @Getter @Setter

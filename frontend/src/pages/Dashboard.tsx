@@ -1,7 +1,3 @@
-// ============================================
-// Dashboard Page
-// ============================================
-
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
@@ -82,7 +78,7 @@ export default function Dashboard() {
         </div>
         <button
           onClick={() => navigate('/log-experience')}
-          className="hidden md:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 text-white text-sm font-medium transition-all shadow-lg hover:shadow-primary-500/25"
+          className="hidden md:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-sm font-medium transition-all shadow-lg hover:shadow-primary-500/25"
           id="dashboard-log-btn"
         >
           <PenSquare className="w-4 h-4" />

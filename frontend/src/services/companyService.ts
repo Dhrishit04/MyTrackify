@@ -1,7 +1,3 @@
-// ============================================
-// Company Service — Mock company data
-// ============================================
-
 import type { Company, CompanyWithProcess, InterviewExperience, CompanyFilters, RoundStats } from '../types';
 import { companies, interviewProcesses, interviewExperiences, companyRoundStats } from './mockData';
 

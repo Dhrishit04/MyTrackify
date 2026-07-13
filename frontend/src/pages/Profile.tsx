@@ -1,7 +1,3 @@
-// ============================================
-// Profile Page
-// ============================================
-
 import { Code2, Trophy, Mail, GraduationCap, BookOpen, Calendar, Edit3 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import SkillRadar from '../components/analytics/SkillRadar';
@@ -39,7 +35,7 @@ export default function Profile() {
         <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
           {/* Avatar */}
           <div className="relative group">
-            <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white text-3xl font-bold shadow-xl">
+            <div className="w-24 h-24 rounded-2xl bg-primary-500 flex items-center justify-center text-white text-3xl font-bold shadow-xl">
               {user?.email?.charAt(0).toUpperCase() || 'U'}
             </div>
             <button className="absolute -bottom-1 -right-1 w-8 h-8 rounded-lg bg-surface-700 border border-white/10 flex items-center justify-center text-surface-300 hover:text-white hover:bg-surface-600 transition-colors opacity-0 group-hover:opacity-100">

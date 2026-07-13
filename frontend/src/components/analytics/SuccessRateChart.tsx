@@ -1,7 +1,3 @@
-// ============================================
-// SuccessRateChart — Bar chart for round stats
-// ============================================
-
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import type { RoundStats } from '../../types';
 

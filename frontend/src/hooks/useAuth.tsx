@@ -1,7 +1,3 @@
-// ============================================
-// Auth Hook
-// ============================================
-
 import { useContext } from 'react';
 import { AuthContext } from '../context/authContextData';
 import type { AuthContextType } from '../types';

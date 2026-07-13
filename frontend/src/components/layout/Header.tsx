@@ -1,7 +1,3 @@
-// ============================================
-// Header Component
-// ============================================
-
 import { Bell, Search, ChevronDown, LogOut, User, Settings } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
@@ -62,7 +58,7 @@ export default function Header() {
             className="flex items-center gap-3 px-3 py-1.5 rounded-xl hover:bg-surface-800 transition-colors"
             id="user-menu-button"
           >
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center text-white text-sm font-semibold">
+            <div className="w-8 h-8 rounded-lg bg-primary-500 flex items-center justify-center text-white text-sm font-semibold">
               {user?.email?.charAt(0).toUpperCase() || 'U'}
             </div>
             <div className="hidden md:block text-left">

@@ -5,9 +5,6 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * Company entity — represents a company that visits campus or accepts off-campus applications.
- */
 @Entity
 @Table(name = "companies")
 @Getter @Setter

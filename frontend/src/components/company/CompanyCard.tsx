@@ -1,7 +1,3 @@
-// ============================================
-// CompanyCard Component
-// ============================================
-
 import { useNavigate } from 'react-router-dom';
 import { Building2, Users, Trophy, TrendingUp, ArrowRight } from 'lucide-react';
 import Badge from '../common/Badge';

@@ -1,7 +1,3 @@
-// ============================================
-// Auth Context & Provider
-// ============================================
-
 import { useState, useCallback, useEffect, type ReactNode } from 'react';
 import type { StudentProfile, LoginRequest, RegisterRequest } from '../types';
 import { authService } from '../services/authService';
@@ -12,7 +8,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Check for existing session on mount
   useEffect(() => {
     const initSession = async () => {
       const existingUser = await Promise.resolve(authService.getCurrentUser());

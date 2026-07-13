@@ -1,7 +1,3 @@
-// ============================================
-// Company Detail Page
-// ============================================
-
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Globe, MapPin, Calendar, Users, Trophy, TrendingUp, Bookmark } from 'lucide-react';

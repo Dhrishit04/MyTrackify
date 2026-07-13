@@ -1,7 +1,3 @@
-// ============================================
-// Admin Panel — Full system access
-// ============================================
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import {
@@ -9,7 +5,6 @@ import {
   Shield, Activity, Database, AlertTriangle, CheckCircle2, XCircle, Eye, RefreshCw,
 } from 'lucide-react';
 
-// Types for admin data
 interface AdminStudent {
   id: number;
   email: string;
@@ -41,7 +36,6 @@ interface SystemStats {
   pendingVerifications: number;
 }
 
-// Mock admin data
 const mockStats: SystemStats = {
   totalStudents: 312,
   totalCompanies: 12,
@@ -80,7 +74,6 @@ export default function AdminPanel() {
   const [students] = useState<AdminStudent[]>(mockStudents);
   const [companies] = useState<AdminCompany[]>(mockCompanies);
 
-  // Only admins can access this
   useEffect(() => {
     if (user && user.role !== 'ADMIN') {
       window.location.href = '/dashboard';

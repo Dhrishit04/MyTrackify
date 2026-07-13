@@ -1,7 +1,3 @@
-// ============================================
-// Badge Component — Status badges
-// ============================================
-
 interface BadgeProps {
   variant: 'selected' | 'rejected' | 'in-progress' | 'withdrew' | 'passed' | 'failed' | 'pending' | 'verified' | 'sector';
   children: React.ReactNode;

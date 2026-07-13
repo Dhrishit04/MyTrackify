@@ -1,7 +1,3 @@
-// ============================================
-// API Service — Axios instance configuration
-// ============================================
-
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
@@ -14,7 +10,6 @@ const api = axios.create({
   timeout: 10000,
 });
 
-// Request interceptor — attach JWT token
 api.interceptors.request.use(
   (config) => {
     const token = sessionStorage.getItem('mytrackify_token');
@@ -26,7 +21,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor — handle auth errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {

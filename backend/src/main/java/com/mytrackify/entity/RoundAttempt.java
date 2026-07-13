@@ -4,9 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
-/**
- * RoundAttempt entity — a student's attempt at a specific interview round.
- */
 @Entity
 @Table(name = "round_attempts")
 @Getter @Setter

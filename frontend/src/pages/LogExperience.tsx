@@ -1,7 +1,3 @@
-// ============================================
-// Log Experience Page — Multi-step form
-// ============================================
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PenSquare, Building2, Plus, Trash2, Star, CheckCircle, ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
@@ -104,7 +100,6 @@ export default function LogExperience() {
     }
   };
 
-  // Success screen
   if (submitted) {
     return (
       <div className="max-w-lg mx-auto text-center py-16 animate-slide-up">
@@ -121,7 +116,7 @@ export default function LogExperience() {
             Browse Companies
           </button>
           <button onClick={() => { setSubmitted(false); setStep(1); setCompanyId(null); setRounds([{ ...emptyRound }]); }}
-            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 text-white text-sm font-medium transition-all hover:shadow-primary-500/25">
+            className="px-6 py-2.5 rounded-xl bg-primary-600 text-white text-sm font-medium transition-all hover:shadow-primary-500/25">
             Log Another
           </button>
         </div>
@@ -384,7 +379,7 @@ export default function LogExperience() {
           <div className="flex-1" />
           {step < 3 ? (
             <button onClick={handleNext}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 text-white text-sm font-semibold transition-all shadow-lg hover:shadow-primary-500/25"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-500 text-white text-sm font-semibold transition-all shadow-lg hover:shadow-primary-500/25"
               id="next-step-btn">
               Next <ArrowRight className="w-4 h-4" />
             </button>

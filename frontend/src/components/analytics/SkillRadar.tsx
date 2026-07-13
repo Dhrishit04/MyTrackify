@@ -1,7 +1,3 @@
-// ============================================
-// SkillRadar — Radar chart for skill comparison
-// ============================================
-
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend } from 'recharts';
 
 interface SkillDataPoint {

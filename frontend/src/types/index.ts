@@ -1,7 +1,3 @@
-// ============================================
-// MyTrackify Type Definitions
-// ============================================
-
 // --- Student ---
 export interface Student {
   id: number;

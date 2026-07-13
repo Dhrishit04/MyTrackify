@@ -1,7 +1,3 @@
-// ============================================
-// Analytics Service — Mock analytics data
-// ============================================
-
 import type { DashboardStats, ReadinessAnalysis } from '../types';
 import { dashboardStats, readinessData } from './mockData';
 
@@ -15,7 +11,6 @@ export const analyticsService = {
 
   async getReadiness(companyId: number): Promise<ReadinessAnalysis> {
     await delay(800);
-    // Return mock readiness with adjusted company name
     return {
       ...readinessData,
       companyId,

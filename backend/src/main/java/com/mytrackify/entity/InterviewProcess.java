@@ -4,10 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
-/**
- * InterviewProcess entity — represents a company's interview process for a specific academic year.
- * Rounds are stored as JSON string (JSONB in PostgreSQL).
- */
 @Entity
 @Table(name = "interview_processes",
        uniqueConstraints = @UniqueConstraint(columnNames = {"company_id", "academic_year", "semester"}))
@@ -30,8 +26,7 @@ public class InterviewProcess {
     @Column(length = 20)
     private String semester; // Fall, Spring
 
-    // JSON string representing rounds array
-    // In PostgreSQL, this would be JSONB type
+    // Stored as a JSON string (would be JSONB in Postgres)
     @Column(columnDefinition = "TEXT")
     private String rounds;
 

@@ -1,7 +1,3 @@
-// ============================================
-// ExperienceCard Component
-// ============================================
-
 import { ThumbsUp, Star, Shield, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 import Badge from '../common/Badge';

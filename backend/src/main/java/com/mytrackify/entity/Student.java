@@ -4,10 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
-/**
- * Student entity — represents a registered student on the platform.
- * Contains academic profile, coding stats, and skill vector for similarity matching.
- */
 @Entity
 @Table(name = "students")
 @Getter @Setter
@@ -60,8 +56,7 @@ public class Student {
     @Column(name = "contest_rating")
     private Integer contestRating;
 
-    // Skill vector stored as comma-separated for H2 compatibility
-    // In PostgreSQL production, this would be NUMERIC[]
+    // Comma-separated for H2 compatibility; in Postgres prod this'd be NUMERIC[]
     @Column(name = "skill_vector", length = 500)
     private String skillVector;
 

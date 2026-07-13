@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
- * Analytics Controller — readiness calculator and stats endpoints.
  * Currently returns stub data; will be connected to AnalyticsEngine service.
  */
 @RestController

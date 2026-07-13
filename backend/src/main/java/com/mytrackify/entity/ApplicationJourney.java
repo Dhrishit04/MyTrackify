@@ -8,9 +8,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * ApplicationJourney entity — tracks a student's complete application journey with a company.
- */
 @Entity
 @Table(name = "application_journeys")
 @Getter @Setter

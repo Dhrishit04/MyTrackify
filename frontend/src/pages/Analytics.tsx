@@ -1,7 +1,3 @@
-// ============================================
-// Analytics Page — Readiness & Insights
-// ============================================
-
 import { useEffect, useState } from 'react';
 import { BarChart3, Target, TrendingUp, AlertTriangle, CheckCircle2, Clock, ChevronDown } from 'lucide-react';
 import SkillRadar from '../components/analytics/SkillRadar';

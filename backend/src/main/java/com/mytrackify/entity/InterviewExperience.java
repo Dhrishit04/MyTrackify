@@ -43,6 +43,26 @@ public class InterviewExperience {
     @Column
     private Boolean verified = false;
 
+    @Builder.Default
+    @Column
+    private Boolean flagged = false;
+
+    @Column(name = "flag_reason", columnDefinition = "TEXT")
+    private String flagReason;
+
+    @Builder.Default
+    @Column(name = "revision_requested")
+    private Boolean revisionRequested = false;
+
+    @Column(name = "revision_note", columnDefinition = "TEXT")
+    private String revisionNote;
+
+    @Column(name = "merged_into_id")
+    private Long mergedIntoId;
+
+    @Column(name = "suggested_tags", columnDefinition = "TEXT")
+    private String suggestedTags; // Comma-separated tags suggested by moderators
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

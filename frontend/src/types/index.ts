@@ -25,6 +25,75 @@ export interface StudentProfile extends Student {
   sectorsApplied: string[];
   lastApplicationDate: string | null;
   role?: 'STUDENT' | 'ADMIN' | 'TPO';
+  // Admin RBAC fields (null when not an admin)
+  isAdmin?: boolean;
+  adminLevel?: AdminLevel;
+  adminAccessLevel?: number;
+  scope?: string;
+  permissions?: string[];
+}
+
+// --- Admin RBAC ---
+export type AdminLevel = 'SYSTEM_ADMIN' | 'DIRECTOR' | 'ASSOCIATE' | 'MODERATOR';
+
+export interface AdminUserSummary {
+  id: number;
+  studentId: number;
+  email: string;
+  anonymizedId: string;
+  level: AdminLevel;
+  roleName: string;
+  accessLevel: number;
+  scope: string;
+  department: string | null;
+  isActive: boolean;
+  assignedAt: string;
+  revokedAt: string | null;
+}
+
+export interface AuditLogEntry {
+  id: number;
+  adminEmail: string;
+  action: string;
+  targetType: string;
+  targetId: number | null;
+  changeReason: string | null;
+  endpoint: string | null;
+  httpMethod: string | null;
+  createdAt: string;
+}
+
+export interface AssignRoleRequest {
+  level: AdminLevel;
+  scope: string;
+  department?: string;
+}
+
+export interface RevokeRoleRequest {
+  reason: string;
+}
+
+export interface FlagExperienceRequest {
+  reason: string;
+}
+
+export interface RevisionRequest {
+  note: string;
+}
+
+export interface NotificationRequest {
+  recipientGroup: string;
+  message: string;
+}
+
+export interface AdminDashboardStats {
+  totalStudents: number;
+  totalCompanies: number;
+  totalExperiences: number;
+  totalApplications: number;
+  activeUsers: number;
+  pendingVerifications: number;
+  totalAdmins: number;
 }
 
 // --- Company ---
@@ -254,6 +323,8 @@ export interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  adminLevel: AdminLevel | null;
+  hasPermission: (permission: string) => boolean;
   login: (credentials: LoginRequest) => Promise<StudentProfile>;
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => void;

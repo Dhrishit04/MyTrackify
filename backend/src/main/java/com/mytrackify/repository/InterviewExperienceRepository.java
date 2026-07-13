@@ -17,4 +17,8 @@ public interface InterviewExperienceRepository extends JpaRepository<InterviewEx
            "WHERE ip.company.id = :companyId " +
            "ORDER BY ie.createdAt DESC")
     Page<InterviewExperience> findByCompanyId(Long companyId, Pageable pageable);
+
+    Page<InterviewExperience> findByFlaggedTrue(Pageable pageable);
+
+    long countByVerifiedFalse();
 }

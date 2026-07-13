@@ -105,6 +105,16 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
 
+# Admin credentials — set via env vars for initial setup, never hardcoded.
+app:
+  admin:
+    bootstrap:
+      email: ${APP_BOOTSTRAP_ADMIN_EMAIL:}
+      password: ${APP_BOOTSTRAP_ADMIN_PASSWORD:}
+    backup:
+      email: ${APP_BACKUP_ADMIN_EMAIL:}
+      password: ${APP_BACKUP_ADMIN_PASSWORD:}
+
 logging:
   level:
     com.mytrackify: INFO

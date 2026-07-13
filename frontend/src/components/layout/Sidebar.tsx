@@ -33,7 +33,7 @@ export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { user } = useAuth();
 
-  const isAdmin = user?.role === 'ADMIN';
+  const isAdmin = !!(user?.adminLevel || user?.role === 'ADMIN');
   const navItems = isAdmin ? adminNavItems : studentNavItems;
 
   return (

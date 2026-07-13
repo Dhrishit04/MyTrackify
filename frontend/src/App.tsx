@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext';
 import AppLayout from './components/layout/AppLayout';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import Login from './pages/Login';
+import AdminLogin from './pages/AdminLogin';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Companies from './pages/Companies';
@@ -24,6 +25,7 @@ function App() {
             {/* Public Routes */}
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/register" element={<Register />} />
 
             {/* Protected Routes */}

@@ -3,25 +3,32 @@ package com.mytrackify.service;
 import com.mytrackify.dto.request.LoginRequest;
 import com.mytrackify.dto.request.RegisterRequest;
 import com.mytrackify.dto.response.AuthResponse;
+import com.mytrackify.entity.AdminUser;
 import com.mytrackify.entity.Student;
 import com.mytrackify.exception.UnauthorizedException;
+import com.mytrackify.repository.AdminUserRepository;
 import com.mytrackify.repository.StudentRepository;
 import com.mytrackify.security.JwtTokenProvider;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+
 @Service
 public class AuthService {
 
     private final StudentRepository studentRepository;
+    private final AdminUserRepository adminUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
 
     public AuthService(StudentRepository studentRepository,
+                       AdminUserRepository adminUserRepository,
                        PasswordEncoder passwordEncoder,
                        JwtTokenProvider tokenProvider) {
         this.studentRepository = studentRepository;
+        this.adminUserRepository = adminUserRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
     }
@@ -45,7 +52,7 @@ public class AuthService {
 
         student = studentRepository.save(student);
 
-        String token = tokenProvider.generateToken(student.getId(), student.getEmail(), student.getRole());
+        String token = tokenProvider.generateToken(student);
 
         return AuthResponse.builder()
                 .token(token)
@@ -63,7 +70,7 @@ public class AuthService {
             throw new UnauthorizedException("Invalid email or password");
         }
 
-        String token = tokenProvider.generateToken(student.getId(), student.getEmail(), student.getRole());
+        String token = tokenProvider.generateToken(student);
 
         student.setLastLogin(java.time.LocalDateTime.now());
         studentRepository.save(student);
@@ -77,14 +84,25 @@ public class AuthService {
     }
 
     private AuthResponse.StudentSummary toStudentSummary(Student student) {
-        return AuthResponse.StudentSummary.builder()
+        AuthResponse.StudentSummary.StudentSummaryBuilder builder = AuthResponse.StudentSummary.builder()
                 .id(student.getId())
                 .email(student.getEmail())
                 .anonymizedId(student.getAnonymizedId())
                 .branch(student.getBranch())
                 .graduationYear(student.getGraduationYear())
                 .cgpaRange(student.getCgpaRange())
-                .role(student.getRole())
-                .build();
+                .role(student.getRole());
+
+        adminUserRepository.findByStudentId(student.getId()).ifPresent(admin -> {
+            if (admin.isAdmin()) {
+                builder.isAdmin(true)
+                        .adminLevel(admin.getAdminRole().getLevel().name())
+                        .adminAccessLevel(admin.getAdminRole().getAccessLevel())
+                        .scope(admin.getScope())
+                        .permissions(new ArrayList<>(admin.getAdminRole().getPermissions()));
+            }
+        });
+
+        return builder.build();
     }
 }

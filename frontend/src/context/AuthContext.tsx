@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, type ReactNode } from 'react';
-import type { StudentProfile, LoginRequest, RegisterRequest } from '../types';
+import type { StudentProfile, LoginRequest, RegisterRequest, AdminLevel } from '../types';
 import { authService } from '../services/authService';
 import { AuthContext } from './authContextData';
 
@@ -7,6 +7,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<StudentProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const adminLevel: AdminLevel | null = user?.adminLevel ?? null;
+  const isAdmin = !!(user?.adminLevel || user?.role === 'ADMIN');
+
+  const hasPermission = useCallback(
+    (permission: string): boolean => {
+      return !!user?.permissions?.includes(permission);
+    },
+    [user?.permissions]
+  );
 
   useEffect(() => {
     const initSession = async () => {
@@ -61,7 +71,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         user,
         isLoading,
         isAuthenticated: !!user,
-        isAdmin: user?.role === 'ADMIN',
+        isAdmin,
+        adminLevel,
+        hasPermission,
         login,
         register,
         logout,

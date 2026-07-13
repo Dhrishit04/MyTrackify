@@ -1,34 +1,43 @@
 import api from './api';
+import { tokenStore } from './tokenStore';
 import type { AuthResponse, LoginRequest, RegisterRequest, StudentProfile } from '../types';
 
+/**
+ * In-memory token storage (per spec: "Never store JWT in localStorage").
+ * Token is held in a module-level variable — lost on page refresh, which is
+ * the correct security posture. For persistent sessions, the spec recommends
+ * an httpOnly refresh-token cookie (not yet implemented).
+ */
 export const authService = {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     const response = await api.post('/auth/login', credentials);
     const authData: AuthResponse = response.data.data;
-    sessionStorage.setItem('mytrackify_token', authData.token);
-    sessionStorage.setItem('mytrackify_user', JSON.stringify(authData.user));
+    tokenStore.setToken(authData.token);
+    tokenStore.setUser(authData.user);
     return authData;
   },
 
   async register(data: RegisterRequest): Promise<AuthResponse> {
     const response = await api.post('/auth/register', data);
     const authData: AuthResponse = response.data.data;
-    sessionStorage.setItem('mytrackify_token', authData.token);
-    sessionStorage.setItem('mytrackify_user', JSON.stringify(authData.user));
+    tokenStore.setToken(authData.token);
+    tokenStore.setUser(authData.user);
     return authData;
   },
 
   logout(): void {
-    sessionStorage.removeItem('mytrackify_token');
-    sessionStorage.removeItem('mytrackify_user');
+    tokenStore.clear();
   },
 
   getCurrentUser(): StudentProfile | null {
-    const data = sessionStorage.getItem('mytrackify_user');
-    return data ? JSON.parse(data) : null;
+    return tokenStore.getUser<StudentProfile>();
+  },
+
+  getToken(): string | null {
+    return tokenStore.getToken();
   },
 
   isAuthenticated(): boolean {
-    return !!sessionStorage.getItem('mytrackify_token');
+    return tokenStore.getToken() !== null;
   },
 };

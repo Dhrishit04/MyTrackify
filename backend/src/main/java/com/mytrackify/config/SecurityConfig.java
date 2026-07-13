@@ -40,6 +40,17 @@ public class SecurityConfig {
                     "/actuator/**",
                     "/error"
                 ).permitAll()
+                // Admin dashboard — coarse role gate; fine-grained checks live in @RequireAdminPermission
+                .requestMatchers("/api/v1/admin/system/**", "/api/v1/admin/roles/**")
+                    .hasAuthority("ROLE_SYSTEM_ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/admin/**")
+                    .hasAnyAuthority("ROLE_SYSTEM_ADMIN", "ROLE_DIRECTOR", "ROLE_ASSOCIATE", "ROLE_MODERATOR")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/admin/**")
+                    .hasAnyAuthority("ROLE_SYSTEM_ADMIN", "ROLE_DIRECTOR")
+                .requestMatchers(org.springframework.http.HttpMethod.PUT, "/api/v1/admin/**")
+                    .hasAnyAuthority("ROLE_SYSTEM_ADMIN", "ROLE_DIRECTOR")
+                .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/v1/admin/**")
+                    .hasAuthority("ROLE_SYSTEM_ADMIN")
                 .anyRequest().authenticated()
             )
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin())) // For H2 console

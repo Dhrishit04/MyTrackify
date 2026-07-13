@@ -20,9 +20,12 @@ export default function Login() {
   // a quick shake grabs attention when login fails
   useEffect(() => {
     if (!error) return;
-    setShake(true);
-    const id = setTimeout(() => setShake(false), 450);
-    return () => clearTimeout(id);
+    const showId = setTimeout(() => setShake(true), 0);
+    const hideId = setTimeout(() => setShake(false), 450);
+    return () => {
+      clearTimeout(showId);
+      clearTimeout(hideId);
+    };
   }, [error]);
 
   const handleSubmit = async (e: React.FormEvent) => {

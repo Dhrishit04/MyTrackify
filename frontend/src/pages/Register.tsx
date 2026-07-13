@@ -41,9 +41,12 @@ export default function Register() {
   // a shake flags the step where validation failed
   useEffect(() => {
     if (!localError && !error) return;
-    setShake(true);
-    const id = setTimeout(() => setShake(false), 450);
-    return () => clearTimeout(id);
+    const showId = setTimeout(() => setShake(true), 0);
+    const hideId = setTimeout(() => setShake(false), 450);
+    return () => {
+      clearTimeout(showId);
+      clearTimeout(hideId);
+    };
   }, [localError, error]);
 
   const updateField = (field: string, value: string | number) => {

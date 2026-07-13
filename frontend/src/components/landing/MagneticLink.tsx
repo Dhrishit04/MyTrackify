@@ -2,9 +2,8 @@
 // A transform on an ancestor of a position:fixed element becomes its
 // containing block — which would yank a fixed link out of the viewport.
 
-import type { ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { TransitionLink } from '../transition/TransitionProvider';
-import { useMagnetic } from '../../hooks/useMagnetic';
 
 interface Props {
   to: string;
@@ -16,15 +15,27 @@ interface Props {
 }
 
 export default function MagneticLink({ to, children, className = '', strength = 0.35, ...rest }: Props) {
-  const m = useMagnetic<HTMLAnchorElement>(strength);
+  const ref = useRef<HTMLAnchorElement>(null);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+
+  const onMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const mx = e.clientX - (r.left + r.width / 2);
+    const my = e.clientY - (r.top + r.height / 2);
+    setPos({ x: mx * strength, y: my * strength });
+  };
+  const onMouseLeave = () => setPos({ x: 0, y: 0 });
+
   return (
     <TransitionLink
       to={to}
-      ref={m.ref}
-      onMouseMove={m.onMouseMove}
-      onMouseLeave={m.onMouseLeave}
+      ref={ref}
+      onMouseMove={onMouseMove}
+      onMouseLeave={onMouseLeave}
       className={className}
-      style={{ willChange: 'transform', ...m.style }}
+      style={{ willChange: 'transform', transform: `translate3d(${pos.x}px, ${pos.y}px, 0)` }}
       {...rest}
     >
       {children}

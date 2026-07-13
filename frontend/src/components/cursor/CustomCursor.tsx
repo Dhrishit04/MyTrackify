@@ -1,27 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
+const ACTIVE_ROUTES = ['/', '/login', '/register'];
+
 export default function CustomCursor() {
   const { pathname } = useLocation();
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
-  const [enabled, setEnabled] = useState(false);
+  const [enabled] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(any-pointer: fine)').matches
+  );
   const [label, setLabel] = useState<string | null>(null);
   const [active, setActive] = useState(false);
 
   const mouse = useRef({ x: -100, y: -100 });
   const ring = useRef({ x: -100, y: -100 });
-
-  const ACTIVE_ROUTES = ['/', '/login', '/register'];
-
-  useEffect(() => {
-    // Only turn on the custom cursor when a fine pointer exists. Check
-    // `any-pointer`, not just the primary one — on hybrid/touch laptops the
-    // primary can read as coarse even with a mouse plugged in, which would
-    // otherwise never enable the cursor.
-    if (!window.matchMedia('(any-pointer: fine)').matches) return;
-    setEnabled(true);
-  }, []);
 
   useEffect(() => {
     if (!enabled) return;

@@ -1,10 +1,6 @@
-import { createContext, forwardRef, useContext, useEffect, useRef, useState, type ReactNode, type AnchorHTMLAttributes } from 'react';
+import { forwardRef, useEffect, useRef, useState, type ReactNode, type AnchorHTMLAttributes } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-
-type TransitionCtx = { navigate: (to: string) => void };
-const Ctx = createContext<TransitionCtx>({ navigate: () => {} });
-
-export const useTransitionNavigate = () => useContext(Ctx).navigate;
+import { Ctx, useTransitionNavigate } from './transitionContext';
 
 const COVER_MS = 520;
 const REVEAL_MS = 560;

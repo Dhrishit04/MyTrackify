@@ -16,12 +16,17 @@ import KineticRibbon from '../components/landing/KineticRibbon';
 import InteractivePlayground from '../components/landing/InteractivePlayground';
 import RevealText from '../components/landing/RevealText';
 import Reveal from '../components/landing/Reveal';
+import HorizontalScrollSection from '../components/landing/HorizontalScrollSection';
 import { GraduationCap, Lock, Search, Users } from 'lucide-react';
 
-/** Publishes the current scroll offset as a CSS var for parallax orbs. */
+/** Publishes scroll offset as CSS vars for parallax orbs and hero fade. */
 function ScrollBridge() {
   useLenis((lenis) => {
-    document.documentElement.style.setProperty('--scroll', String(Math.round(lenis.scroll)));
+    const s = Math.round(lenis.scroll);
+    document.documentElement.style.setProperty('--scroll', String(s));
+    // Also publish scroll progress (0-1 ratio)
+    const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    document.documentElement.style.setProperty('--scroll-pct', String(Math.min(1, s / max)));
   });
   return null;
 }
@@ -77,6 +82,48 @@ export default function Landing() {
         <CTA />
       </main>
 
+      <HorizontalScrollSection
+        sectionTitle="Everything you need to win placement season"
+        sectionSubtitle="Five pillars that turn scattered prep into a systematic advantage"
+        items={[
+          {
+            id: 1,
+            title: 'Interview Intelligence',
+            description: 'Real experiences from your campus — not generic advice. Search by company, role, or topic to find exactly what you need.',
+            icon: '📊',
+            gradient: 'from-primary-500/20 to-primary-500/5',
+          },
+          {
+            id: 2,
+            title: 'Readiness Scoring',
+            description: 'AI-powered analysis of your prep vs. company patterns. Know exactly where you stand before every interview.',
+            icon: '🧠',
+            gradient: 'from-accent-500/20 to-accent-500/5',
+          },
+          {
+            id: 3,
+            title: 'Skill Radar',
+            description: 'Visualize gaps across technical, behavioral, and domain skills. Track progress with cohort comparisons.',
+            icon: '🎯',
+            gradient: 'from-success-500/20 to-success-500/5',
+          },
+          {
+            id: 4,
+            title: 'Referral Network',
+            description: 'Unlock warm intros through verified senior connections. Your campus network, finally searchable.',
+            icon: '🔗',
+            gradient: 'from-warning-500/20 to-warning-500/5',
+          },
+          {
+            id: 5,
+            title: 'Cohort Benchmarks',
+            description: 'See how you stack up against your batch — anonymously. Data-driven confidence for every application.',
+            icon: '📈',
+            gradient: 'from-danger-500/20 to-danger-500/5',
+          },
+        ]}
+      />
+
       <Footer />
     </ReactLenis>
   );
@@ -102,6 +149,7 @@ function Philosophy() {
             as="h2"
             className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl"
             text="Knowledge that used to graduate and disappear"
+            mode="chars"
           />
           <Reveal>
             <p className="mt-4 text-base text-surface-300">

@@ -6,6 +6,7 @@ interface P {
   y: number;
   vx: number;
   vy: number;
+  history: { x: number; y: number }[];
 }
 
 export default function ParticleField({ className = '' }: { className?: string }) {
@@ -32,6 +33,7 @@ export default function ParticleField({ className = '' }: { className?: string }
         y: Math.random() * h,
         vx: (Math.random() - 0.5) * 0.35,
         vy: (Math.random() - 0.5) * 0.35,
+        history: [],
       }));
     };
 
@@ -58,7 +60,16 @@ export default function ParticleField({ className = '' }: { className?: string }
 
     const draw = () => {
       ctx.clearRect(0, 0, w, h);
+
+      // Update particles and maintain history for trail effect
       for (const p of particles) {
+        // Add current position to history
+        p.history.push({ x: p.x, y: p.y });
+        // Keep only last 10 points for the trail
+        if (p.history.length > 10) {
+          p.history.shift();
+        }
+
         p.x += p.vx;
         p.y += p.vy;
         if (p.x < 0 || p.x > w) p.vx *= -1;
@@ -75,6 +86,24 @@ export default function ParticleField({ className = '' }: { className?: string }
         }
       }
 
+      // Draw contrail-like trails
+      for (const p of particles) {
+        if (p.history.length > 1) {
+          ctx.beginPath();
+          ctx.moveTo(p.history[0].x, p.history[0].y);
+          for (let i = 1; i < p.history.length; i++) {
+            const point = p.history[i];
+            // Calculate alpha based on position in history (newer = more opaque)
+            const alpha = (i / p.history.length) * 0.3;
+            ctx.strokeStyle = `rgba(45, 212, 191, ${alpha})`;
+            ctx.lineWidth = 1.5;
+            ctx.lineTo(point.x, point.y);
+          }
+          ctx.stroke();
+        }
+      }
+
+      // Draw connection lines between nearby particles
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const a = particles[i];
@@ -93,6 +122,7 @@ export default function ParticleField({ className = '' }: { className?: string }
         }
       }
 
+      // Draw particles
       ctx.fillStyle = 'rgba(45, 212, 191, 0.7)';
       for (const p of particles) {
         ctx.beginPath();

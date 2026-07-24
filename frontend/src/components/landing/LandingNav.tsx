@@ -15,6 +15,9 @@ export default function LandingNav() {
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [visible, setVisible] = useState(false);
+  const [logoBounce, setLogoBounce] = useState(false);
+  const prevScrolled = useRef(false);
   const lenis = useLenis();
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -22,9 +25,24 @@ export default function LandingNav() {
     if (searchOpen) searchRef.current?.focus();
   }, [searchOpen]);
 
+  // Cinematic nav entrance after preloader
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), 100);
+    return () => clearTimeout(t);
+  }, []);
+
   useLenis((l) => {
     const y = l.scroll;
-    setScrolled((prev) => (prev !== y > 24 ? y > 24 : prev));
+    const nowScrolled = y > 24;
+    setScrolled((prev) => {
+      if (prev !== nowScrolled && nowScrolled && !prevScrolled.current) {
+        // Trigger logo bounce on scroll-up toggle
+        setLogoBounce(true);
+        setTimeout(() => setLogoBounce(false), 500);
+      }
+      prevScrolled.current = nowScrolled;
+      return nowScrolled;
+    });
   });
 
   const handleNav = (e: React.MouseEvent, href: string) => {
@@ -36,11 +54,9 @@ export default function LandingNav() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? 'py-2.5'
-          : 'py-5'
-      }`}
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-700 ${
+        visible ? 'nav-visible' : 'nav-hidden'
+      } ${scrolled ? 'py-2.5' : 'py-5'}`}
     >
       <div
         className={`mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 transition-all duration-500 ${
@@ -51,7 +67,7 @@ export default function LandingNav() {
       >
         {/* Logo */}
         <a href="#top" onClick={(e) => handleNav(e, '#top')} className="flex items-center gap-2.5 group">
-          <div className="relative grid h-9 w-9 place-items-center rounded-xl bg-primary-500 shadow-lg shadow-primary-500/25 transition-transform duration-300 group-hover:scale-105">
+          <div className={`relative grid h-9 w-9 place-items-center rounded-xl bg-primary-500 shadow-lg shadow-primary-500/25 transition-transform duration-300 group-hover:scale-105 ${logoBounce ? 'logo-bounce' : ''}`}>
             <Sparkles className="h-5 w-5 text-white" strokeWidth={2.2} />
           </div>
           <span className="text-lg font-bold tracking-tight text-white">MyTrackify</span>

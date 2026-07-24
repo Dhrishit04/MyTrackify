@@ -69,6 +69,11 @@
   50% { transform: translateY(-10px); }
 }
 
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+
 @keyframes glow {
   from { box-shadow: 0 0 20px rgba(245, 158, 11, 0.15); }
   to { box-shadow: 0 0 30px rgba(245, 158, 11, 0.35); }
@@ -97,6 +102,34 @@
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes bounceGentle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes grow {
+  from { width: 0%; }
+  to { width: var(--target-width, 100%); }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes drawPath {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes drawLogo {
+  to { stroke-dashoffset: 0; }
 }
 
 /* ============================================
@@ -171,6 +204,58 @@ body {
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
   border: 1px solid rgba(245, 158, 11, 0.16);
+}
+
+/* New animation utility classes */
+.animate-float-slow {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-bounce-gentle {
+  animation: bounceGentle 1s ease-in-out infinite;
+}
+
+.animate-grow {
+  animation: grow 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: left;
+}
+
+.animate-count-up {
+  animation: countUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float-slow,
+  .animate-scale-in,
+  .animate-bounce-gentle,
+  .animate-grow,
+  .animate-count-up,
+  .animate-slide-up,
+  .animate-slide-in-right,
+  .animate-fade-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 /* Gradient backgrounds */
@@ -480,6 +565,8 @@ body {
   font-weight: 600;
   letter-spacing: 0.02em;
   transition: width 0.25s ease, height 0.25s ease, background 0.25s ease;
+  /* Add a subtle trail effect */
+  box-shadow: 0 0 0 rgba(245, 158, 11, 0.2);
 }
 
 .cursor-ring {
@@ -489,6 +576,20 @@ body {
   border: 1.5px solid rgba(251, 191, 36, 0.5);
   transition: width 0.25s ease, height 0.25s ease, border-color 0.25s ease,
     background 0.25s ease, opacity 0.25s ease;
+  /* Add a subtle trailing effect */
+  box-shadow: 0 0 0 rgba(245, 158, 11, 0.1);
+}
+
+/* Cursor trail dots */
+.cursor-trail-dot {
+  pointer-events: none;
+}
+
+/* Trail fade on reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .cursor-trail-dot {
+    display: none !important;
+  }
 }
 
 .cursor-dot--active {
@@ -502,6 +603,25 @@ body {
   height: 56px;
   border-color: rgba(251, 191, 36, 0.9);
   background: rgba(245, 158, 11, 0.1);
+}
+
+/* Add keyframes for cursor trail effect */
+@keyframes cursorTrail {
+  0% {
+    box-shadow: 0 0 0 rgba(245, 158, 11, 0.2), 0 0 0 rgba(245, 158, 11, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.3), 0 0 4px rgba(245, 158, 11, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(245, 158, 11, 0.2), 0 0 0 rgba(245, 158, 11, 0.1);
+  }
+}
+
+/* Apply the trail effect when moving */
+.custom-cursor-on .cursor-dot,
+.custom-cursor-on .cursor-ring {
+  animation: cursorTrail 1.5s ease-in-out infinite;
 }
 
 /* --- Page transition sweep --- */
@@ -843,6 +963,286 @@ body.is-loading {
   cursor: grabbing;
 }
 
+/* ============================================
+   Joby-Style Cinematic Animation Systems
+   ============================================ */
+
+/* --- Character-level reveal (per-character stagger) --- */
+.reveal-char {
+  display: inline-block;
+  opacity: 0;
+  filter: blur(12px);
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform, filter;
+}
+
+.reveal-text.is-visible .reveal-char {
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0);
+}
+
+/* --- Scroll-linked hero fade (opacity + translateY driven by scroll) --- */
+.hero-scroll-fade {
+  will-change: opacity, transform;
+  transition: opacity 0.15s linear, transform 0.15s linear;
+}
+
+/* --- Gradient shimmer sweep on scroll reveal --- */
+@keyframes shimmerSweep {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.text-shimmer-scroll {
+  background: linear-gradient(
+    90deg,
+    var(--color-primary-400) 0%,
+    var(--color-primary-300) 25%,
+    #fff 50%,
+    var(--color-primary-300) 75%,
+    var(--color-primary-400) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmerSweep 3s ease-in-out forwards;
+}
+
+/* --- Sticky scroll-through container --- */
+.sticky-container {
+  position: relative;
+}
+
+.sticky-pin {
+  position: sticky;
+  top: 6rem;
+  height: auto;
+  align-self: start;
+}
+
+/* Sticky scroll-through wrapper for the Showcase */
+.sticky-scroll-through {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+.sticky-scroll-through > *:first-child {
+  position: sticky;
+  top: 6rem;
+}
+
+@media (max-width: 1023px) {
+  .sticky-scroll-through {
+    grid-template-columns: 1fr;
+  }
+  .sticky-scroll-through > *:first-child {
+    position: static;
+  }
+}
+
+/* --- Button kinetic slide-up hover (Joby button-in/button-out) --- */
+.btn-kinetic {
+  position: relative;
+  display: inline-flex;
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.btn-kinetic__inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: transform 0.4s cubic-bezier(0.34, 1.4, 0.64, 1);
+  will-change: transform;
+}
+
+.btn-kinetic__outer {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transform: translateY(calc(100% + 6px));
+  transition: transform 0.4s cubic-bezier(0.34, 1.4, 0.64, 1);
+  will-change: transform;
+}
+
+.btn-kinetic:hover .btn-kinetic__inner {
+  transform: translateY(-100%);
+}
+
+.btn-kinetic:hover .btn-kinetic__outer {
+  transform: translateY(0);
+}
+
+/* --- Cinematic vignette overlay --- */
+.vignette {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 70% 60% at 50% 50%,
+    transparent 30%,
+    rgba(12, 10, 8, 0.4) 70%,
+    rgba(12, 10, 8, 0.6) 100%
+  );
+  z-index: 1;
+}
+
+/* --- Section glow pulse --- */
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.08); }
+}
+
+.glow-pulse {
+  animation: glowPulse 4s ease-in-out infinite;
+}
+
+/* --- Stats gradient underline sweep --- */
+.stat-item {
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--color-primary-400), var(--color-accent-400), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stat-item.is-visible::after {
+  transform: translateX(0);
+}
+
+/* --- Scale + blur reveal variant (features, stats) --- */
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.92);
+  filter: blur(8px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform, filter;
+}
+
+.reveal-scale.is-visible {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+}
+
+/* --- Nav cinematic entrance --- */
+.nav-hidden {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.97);
+  pointer-events: none;
+}
+
+.nav-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --- Logo micro bounce --- */
+@keyframes logoBounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.12); }
+  70% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+.logo-bounce {
+  animation: logoBounce 0.5s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+/* --- Feature card inner glow ring --- */
+.feature-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: radial-gradient(
+    400px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(251, 191, 36, 0.3) 0%,
+    transparent 45%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.feature-card:hover::before {
+  opacity: 1;
+}
+
+/* --- Scroll-progress-based step opacity (Showcase steps) --- */
+.step-visible {
+  opacity: 1;
+  transform: translateX(0);
+  filter: blur(0);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.step-hidden {
+  opacity: 0;
+  transform: translateX(-20px);
+  filter: blur(4px);
+}
+
+/* --- Magnetic button glow enhancement --- */
+.btn-glow {
+  position: relative;
+  isolation: isolate;
+}
+
+.btn-glow::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: radial-gradient(200px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(245, 158, 11, 0.25) 0%,
+    transparent 50%);
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+
+.btn-glow:hover::before {
+  opacity: 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal-word > span { transform: none !important; }
   .draw-path { stroke-dashoffset: 0 !important; animation: none !important; }
@@ -853,4 +1253,16 @@ body.is-loading {
   .animate-shake { animation: none !important; }
   .liquid-toggle__thumb { animation: none !important; transition: none !important; }
   .nav-search, .nav-search.is-open { transition: none !important; }
+  .reveal-char { opacity: 1 !important; filter: none !important; transform: none !important; transition: none !important; }
+  .reveal-scale { opacity: 1 !important; filter: none !important; transform: none !important; transition: none !important; }
+  .hero-scroll-fade { transition: none !important; }
+  .text-shimmer-scroll { animation: none !important; }
+  .btn-kinetic__inner, .btn-kinetic__outer { transition: none !important; }
+  .btn-kinetic:hover .btn-kinetic__inner { transform: none !important; }
+  .btn-kinetic:hover .btn-kinetic__outer { transform: none !important; }
+  .glow-pulse { animation: none !important; }
+  .stat-item::after { transition: none !important; }
+  .logo-bounce { animation: none !important; }
+  .step-hidden { opacity: 1 !important; transform: none !important; filter: none !important; }
+  .nav-hidden { opacity: 1 !important; transform: none !important; pointer-events: auto !important; }
 }

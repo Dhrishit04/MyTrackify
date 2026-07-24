@@ -14,9 +14,34 @@ const HIGHLIGHTS = [
 
 export default function Hero() {
   const rootRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const lenis = useLenis();
   const [word, setWord] = useState(0);
+  const [scrollPct, setScrollPct] = useState(0);
+  const [shimmerShown, setShimmerShown] = useState(false);
 
+  // Track scroll progress for hero fade-out using Lenis's scroll value (synced with native scroll)
+  useEffect(() => {
+    let rafId: number;
+    const hero = rootRef.current;
+    if (!hero) return;
+    const heroHeight = hero.offsetHeight; // Use offsetHeight which includes padding
+    const viewportHeight = window.innerHeight;
+    const denominator = Math.max(1, heroHeight - viewportHeight); // Guard against zero/negative
+
+    const updateScroll = () => {
+      // Use Lenis's scroll position which stays in sync with native scroll
+      const scrollY = lenis?.scroll ?? window.scrollY;
+      const pct = Math.min(1, Math.max(0, scrollY / denominator));
+      setScrollPct(pct);
+      if (pct > 0.05) setShimmerShown(true);
+      rafId = requestAnimationFrame(updateScroll);
+    };
+    rafId = requestAnimationFrame(updateScroll);
+    return () => cancelAnimationFrame(rafId);
+  }, [lenis]); // Only re-run if lenis instance changes
+
+  // Rotating word animation
   useEffect(() => {
     const id = setInterval(() => setWord((w) => (w + 1) % ROLLER.length), 2600);
     return () => clearInterval(id);
@@ -42,6 +67,9 @@ export default function Hero() {
     if (t) lenis?.scrollTo(t as HTMLElement, { offset: -88 });
   };
 
+  const heroOpacity = Math.max(0, 1 - scrollPct * 1.8);
+  const heroTranslateY = scrollPct * 60;
+
   return (
     <section
       id="top"
@@ -50,13 +78,39 @@ export default function Hero() {
       onMouseLeave={onLeave}
       className="relative isolate flex min-h-dvh flex-col items-center justify-center overflow-hidden px-4 pt-32 pb-20 sm:px-6"
     >
+      {/* Video background */}
+      <div className="pointer-events-none absolute inset-0 -z-40 overflow-hidden">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover opacity-15"
+          poster="/hero-poster.webp"
+          aria-hidden="true"
+        >
+          <source src="/hero-background.mp4" type="video/mp4" />
+        </video>
+        {/* Gradient overlay over video */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse at 50% 0%, rgba(245,158,11,0.2) 0%, transparent 50%), radial-gradient(ellipse at 50% 100%, rgba(245,158,11,0.1) 0%, transparent 40%), var(--color-surface-950)',
+          }}
+        />
+      </div>
+
       <div
         className="pointer-events-none absolute inset-0 -z-30"
         style={{
           background:
-            'radial-gradient(ellipse at 50% -10%, rgba(245,158,11,0.16) 0%, transparent 55%), radial-gradient(ellipse at 80% 90%, rgba(245,158,11,0.09) 0%, transparent 50%), var(--color-surface-950)',
+            'radial-gradient(ellipse at 50% -10%, rgba(245,158,11,0.16) 0%, transparent 55%), radial-gradient(ellipse at 80% 90%, rgba(245,158,11,0.09) 0%, transparent 50%), transparent',
         }}
       />
+
+      {/* Cinematic vignette overlay */}
+      <div className="vignette -z-20" />
 
       <div
         className="pointer-events-none absolute inset-0 -z-20 opacity-[0.025]"
@@ -71,11 +125,20 @@ export default function Hero() {
 
       <ParticleField className="pointer-events-none absolute inset-0 -z-10 h-full w-full opacity-70" />
 
-      <Orb className="left-[8%] top-[18%] h-72 w-72 bg-primary-500/20" scrollFactor={0.18} mouse={34} />
-      <Orb className="right-[10%] top-[24%] h-80 w-80 bg-accent-500/15" scrollFactor={0.28} mouse={28} />
-      <Orb className="left-[42%] bottom-[8%] h-64 w-64 bg-primary-400/10" scrollFactor={0.12} mouse={40} />
+      <Orb className="left-[8%] top-[18%] h-72 w-72 bg-primary-500/15" scrollFactor={0.18} mouse={34} />
+      <Orb className="right-[10%] top-[24%] h-80 w-80 bg-accent-500/12" scrollFactor={0.28} mouse={28} />
+      <Orb className="left-[42%] bottom-[8%] h-64 w-64 bg-primary-400/12" scrollFactor={0.12} mouse={40} />
+      <Orb className="right-[60%] top-[15%] h-56 w-56 bg-success-500/10" scrollFactor={0.22} mouse={18} />
+      <Orb className="left-[15%] bottom-[20%] h-48 w-48 bg-accent-400/10" scrollFactor={0.15} mouse={26} />
 
-      <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center text-center">
+      <div
+        ref={contentRef}
+        className="hero-scroll-fade relative z-10 mx-auto flex max-w-4xl flex-col items-center text-center"
+        style={{
+          opacity: heroOpacity,
+          transform: `translateY(${heroTranslateY}px)`,
+        }}
+      >
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-surface-200 backdrop-blur-md animate-fade-in">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary-400 opacity-75" />
@@ -86,7 +149,7 @@ export default function Hero() {
 
         <h1 className="font-display text-balance text-5xl font-bold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
           Prepare{' '}
-          <span className="text-gradient">smarter</span>{' '}
+          <span className={`text-gradient ${shimmerShown ? 'text-shimmer-scroll' : ''}`}>smarter</span>{' '}
           <span className="relative inline-block">
             <span
               key={word}
@@ -106,10 +169,16 @@ export default function Hero() {
         <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
           <Link
             to="/login"
-            className="group inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-primary-600/25 transition-all duration-300 hover:bg-primary-500 hover:shadow-primary-500/40"
+            className="btn-kinetic group inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-primary-600/25 transition-all duration-300 hover:bg-primary-500 hover:shadow-primary-500/40"
           >
-            Get started free
-            <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            <span className="btn-kinetic__inner">
+              Get started free
+              <ArrowRight className="h-4 w-4" />
+            </span>
+            <span className="btn-kinetic__outer">
+              Get started free
+              <ArrowRight className="h-4 w-4" />
+            </span>
           </Link>
           <a
             href="#features"
@@ -140,6 +209,7 @@ export default function Hero() {
         }}
         className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 text-surface-400 hover:text-surface-200 transition-colors"
         aria-label="Scroll down"
+        style={{ opacity: Math.max(0, 1 - scrollPct * 3) }}
       >
         <div className="flex h-9 w-5 items-start justify-center rounded-full border border-white/15 p-1">
           <span className="animate-scroll-cue h-1.5 w-1 rounded-full bg-primary-400" />
@@ -168,15 +238,18 @@ function Orb({
   scrollFactor: number;
   mouse: number;
 }) {
+  const scroll = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--scroll')) || 0;
+  const floatOffset = Math.sin(scroll * 0.001 + mouse) * 3;
+
   return (
     <div
       className={`pointer-events-none absolute -z-10 rounded-full blur-[90px] ${className}`}
-      style={{ transform: `translate3d(0, calc(var(--scroll, 0) * ${scrollFactor}px), 0)` }}
+      style={{ transform: `translate3d(0, calc(var(--scroll, 0) * ${scrollFactor}px + ${floatOffset}px), 0)` }}
     >
       <div
         className="h-full w-full rounded-full animate-aurora"
         style={{
-          transform: `translate3d(calc(var(--mx, 0) * ${mouse}px), calc(var(--my, 0) * ${mouse}px), 0)`,
+          transform: `translate3d(calc(var(--mx, 0) * ${mouse}px), calc(var(--my, 0) * ${mouse}px), 0) rotate(${Math.sin(scroll * 0.01) * 3}deg)`,
           transition: 'transform 0.45s cubic-bezier(0.16,1,0.3,1)',
         }}
       />

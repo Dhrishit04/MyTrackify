@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Mail, Lock, ArrowRight, ArrowLeft, Eye, EyeOff } from 'lucide-react';
@@ -6,16 +6,21 @@ import { TransitionLink } from '../components/transition/TransitionProvider';
 import MagneticLink from '../components/landing/MagneticLink';
 import MagneticButton from '../components/common/MagneticButton';
 import Reveal from '../components/landing/Reveal';
+import RevealText from '../components/landing/RevealText';
 import ParticleField from '../components/landing/ParticleField';
 import TrackMark from '../components/brand/TrackMark';
+import { useLenis } from 'lenis/react';
 
 export default function Login() {
   const { login, error, clearError, isLoading } = useAuth();
   const navigate = useNavigate();
+  const lenis = useLenis();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [shake, setShake] = useState(false);
+  const [formProgress, setFormProgress] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // a quick shake grabs attention when login fails
   useEffect(() => {
@@ -27,6 +32,21 @@ export default function Login() {
       clearTimeout(hideId);
     };
   }, [error]);
+
+  // Track scroll for parallax effects
+  useEffect(() => {
+    if (!lenis) return;
+    let rafId: number;
+    const updateParallax = () => {
+      const scrollY = lenis.scroll;
+      const viewportHeight = window.innerHeight;
+      const progress = Math.min(1, scrollY / (viewportHeight * 2));
+      setFormProgress(progress);
+      rafId = requestAnimationFrame(updateParallax);
+    };
+    rafId = requestAnimationFrame(updateParallax);
+    return () => cancelAnimationFrame(rafId);
+  }, [lenis]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -56,9 +76,12 @@ export default function Login() {
       {/* Interactive particle depth */}
       <ParticleField className="pointer-events-none absolute inset-0 opacity-40" />
 
-      {/* Ambient orbs */}
-      <div className="absolute top-20 left-[15%] w-72 h-72 bg-primary-500/10 rounded-full blur-[120px] animate-float pointer-events-none" />
-      <div className="absolute bottom-20 right-[15%] w-64 h-64 bg-accent-500/10 rounded-full blur-[100px] animate-float pointer-events-none" style={{ animationDelay: '4s' }} />
+      {/* Ambient orbs with parallax */}
+      <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute top-20 left-[15%] w-72 h-72 bg-primary-500/10 rounded-full blur-[120px] animate-float pointer-events-none" style={{ transform: 'translateY(' + formProgress * 40 + 'px)' }} />
+        <div className="absolute bottom-20 right-[15%] w-64 h-64 bg-accent-500/10 rounded-full blur-[100px] animate-float pointer-events-none" style={{ animationDelay: '4s', transform: 'translateY(' + formProgress * -40 + 'px)' }} />
+        <div className="absolute top-1/2 left-1/2 w-48 h-48 bg-primary-400/3 rounded-full blur-[80px] animate-float pointer-events-none" style={{ animationDelay: '2s', transform: 'translate(-50%, calc(-50% + ' + formProgress * 20 + 'px))' }} />
+      </div>
 
       {/* Grid texture */}
       <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{
@@ -70,29 +93,30 @@ export default function Login() {
       <MagneticLink
         to="/"
         strength={0.4}
-        className="fixed top-6 left-6 z-50 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-surface-200 backdrop-blur-md transition-colors hover:border-white/20 hover:text-white"
+        className="fixed top-6 left-6 z-50 inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-surface-200 backdrop-blur-md transition-colors hover:border-white/20 hover:text-white animate-fade-in"
+        style={{ animationDelay: '200ms', animationFillMode: 'both' }}
       >
         <ArrowLeft className="h-4 w-4" /> Back to home
       </MagneticLink>
 
-      <div className="relative z-10 flex-1 flex items-center justify-center px-4 sm:px-6 py-20 overflow-y-auto">
+      <div ref={containerRef} className="relative z-10 flex-1 flex items-center justify-center px-4 sm:px-6 py-20 overflow-y-auto" style={{ willChange: 'transform' }}>
         <div className="w-full max-w-5xl flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
 
           {/* Left — Branding */}
-          <Reveal as="div" className="flex-1 max-w-lg text-center lg:text-left shrink-0">
-            <TransitionLink to="/" className="flex items-center gap-3 mb-6 lg:mb-8 justify-center lg:justify-start group transition-opacity hover:opacity-90">
-              <div className="w-11 h-11 rounded-xl bg-primary-500 flex items-center justify-center shadow-lg shadow-primary-500/25">
+          <Reveal as="div" className="flex-1 max-w-lg text-center lg:text-left shrink-0" style={{ opacity: 0.3 + formProgress * 0.7, transform: 'translateX(' + 30 * (1 - formProgress) + 'px)' }}>
+            <TransitionLink to="/" className="flex items-center gap-3 mb-6 lg:mb-8 justify-center lg:justify-start group transition-opacity hover:opacity-90 animate-fade-in" style={{ animationDelay: '200ms', animationFillMode: 'both' }}>
+              <div className="w-11 h-11 rounded-xl bg-primary-500 flex items-center justify-center shadow-lg shadow-primary-500/25 animate-float">
                 <TrackMark className="w-6 h-6 text-white" strokeWidth={2.2} />
               </div>
               <span className="text-xl font-bold text-white tracking-tight">MyTrackify</span>
             </TransitionLink>
 
-            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 lg:mb-5 leading-[1.1] tracking-tight">
+            <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 lg:mb-5 leading-[1.1] tracking-tight animate-slide-up" style={{ animationDelay: '300ms', animationFillMode: 'both' }}>
               Know every offer<br />
               <span className="text-gradient">before you interview.</span>
             </h1>
 
-            <p className="text-surface-300 text-sm sm:text-base lg:text-lg leading-relaxed mb-6 lg:mb-10 max-w-md mx-auto lg:mx-0">
+            <p className="text-surface-300 text-sm sm:text-base lg:text-lg leading-relaxed mb-6 lg:mb-10 max-w-md mx-auto lg:mx-0 animate-fade-in" style={{ animationDelay: '400ms', animationFillMode: 'both' }}>
               Real interview experiences, company insights, and AI-powered readiness analysis — all from students at your own campus.
             </p>
 
@@ -101,11 +125,11 @@ export default function Login() {
                 'Browse 12+ company interview processes',
                 '500+ verified student experiences',
                 'Personalized readiness scoring',
-              ].map((text) => (
-                <div key={text} className="flex items-center gap-3 justify-center lg:justify-start">
+              ].map((text, i) => (
+                <Reveal key={text} delay={i * 100} className="flex items-center gap-3 justify-center lg:justify-start animate-slide-in-right" style={{ animationFillMode: 'both' }}>
                   <TrackMark className="w-4 h-4 text-primary-400 flex-shrink-0" strokeWidth={2.4} />
                   <span className="text-xs sm:text-sm text-surface-300">{text}</span>
-                </div>
+                </Reveal>
               ))}
             </div>
 
@@ -115,37 +139,40 @@ export default function Login() {
                 { value: '12', label: 'Companies' },
                 { value: '500+', label: 'Experiences' },
                 { value: '85+', label: 'Offers' },
-              ].map(({ value, label }) => (
-                <div key={label} className="px-4 sm:px-5 first:pl-0 last:pr-0 text-center lg:text-left">
-                  <p className="font-display text-2xl sm:text-3xl font-semibold text-primary-400 leading-none">{value}</p>
+              ].map(({ value, label }, i) => (
+                <Reveal key={label} delay={i * 80} className="px-4 sm:px-5 first:pl-0 last:pr-0 text-center lg:text-left animate-fade-in" style={{ animationFillMode: 'both' }}>
+                  <p className="font-display text-2xl sm:text-3xl font-semibold text-primary-400 leading-none animate-count-up">{value}</p>
                   <p className="text-[10px] sm:text-xs uppercase tracking-wider text-surface-500 mt-1.5">{label}</p>
-                </div>
+                </Reveal>
               ))}
             </div>
           </Reveal>
 
           {/* Right — Login Card */}
-          <Reveal as="div" className="w-full max-w-[420px] shrink-0">
-            <div className="rounded-2xl border border-white/10 bg-surface-900 p-8 shadow-2xl shadow-black/40">
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">Welcome back</h2>
-                <p className="text-surface-300 text-sm">Sign in to your placement dashboard</p>
+          <Reveal as="div" className="w-full max-w-[420px] shrink-0" delay={200} style={{ opacity: 0.2 + formProgress * 0.8, transform: 'translateX(' + -30 * (1 - formProgress) + 'px)' }}>
+            <div className="rounded-2xl border border-white/10 bg-surface-900 p-8 shadow-2xl shadow-black/40 relative overflow-hidden group">
+              {/* Animated border glow */}
+              <div className="absolute inset-0 border-glow" style={{ opacity: 0.5 }} />
+
+              <div className="mb-8 relative z-10">
+                <RevealText as="h2" className="text-2xl font-bold text-white mb-2 tracking-tight" text="Welcome back" mode="words" stagger={40} />
+                <p className="text-surface-300 text-sm animate-fade-in" style={{ animationDelay: '300ms', animationFillMode: 'both' }}>Sign in to your placement dashboard</p>
               </div>
 
               {error && (
-                <div className="mb-5 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2.5 animate-slide-up">
+                <div className="mb-5 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2.5 animate-slide-up animate-shake">
                   <div className="w-1.5 h-1.5 bg-red-400 rounded-full flex-shrink-0" />
                   {error}
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-5 relative z-10">
                 <div>
                   <label className="block text-xs font-medium text-surface-300 mb-2 uppercase tracking-wider" htmlFor="login-email">
                     Email
                   </label>
-                  <div className={`flex items-center gap-3 rounded-lg border border-surface-600 bg-surface-950/60 px-3.5 py-2.5 transition-colors focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/30 ${shake ? 'animate-shake' : ''}`}>
-                    <Mail className="h-5 w-5 shrink-0 text-surface-400" />
+                  <div className={`flex items-center gap-3 rounded-lg border border-surface-600 bg-surface-950/60 px-3.5 py-2.5 transition-colors focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/30 ${shake ? 'animate-shake' : ''} group`}>
+                    <Mail className="h-5 w-5 shrink-0 text-surface-400 group-focus-within:text-primary-400 transition-colors" />
                     <input
                       id="login-email"
                       type="email"
@@ -162,8 +189,8 @@ export default function Login() {
                   <label className="block text-xs font-medium text-surface-300 mb-2 uppercase tracking-wider" htmlFor="login-password">
                     Password
                   </label>
-                  <div className={`flex items-center gap-3 rounded-lg border border-surface-600 bg-surface-950/60 px-3.5 py-2.5 transition-colors focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/30 ${shake ? 'animate-shake' : ''}`}>
-                    <Lock className="h-5 w-5 shrink-0 text-surface-400" />
+                  <div className={`flex items-center gap-3 rounded-lg border border-surface-600 bg-surface-950/60 px-3.5 py-2.5 transition-colors focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-500/30 ${shake ? 'animate-shake' : ''} group`}>
+                    <Lock className="h-5 w-5 shrink-0 text-surface-400 group-focus-within:text-primary-400 transition-colors" />
                     <input
                       id="login-password"
                       type={showPassword ? 'text' : 'password'}
@@ -186,17 +213,21 @@ export default function Login() {
                   onClick={handleButtonClick}
                   disabled={isLoading}
                   id="login-submit"
-                  className="w-full mt-1 py-2.5 px-4 rounded-lg bg-primary-600 hover:bg-primary-500 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary-600/20 hover:shadow-primary-500/30"
+                  className="w-full mt-1 py-2.5 px-4 rounded-lg bg-primary-600 hover:bg-primary-500 text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary-600/20 hover:shadow-primary-500/30 group relative overflow-hidden"
                 >
-                  {isLoading ? (
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <><span>Sign In</span><ArrowRight className="w-4 h-4" /></>
-                  )}
+                  <span className="relative z-10 group-hover:translate-x-1 transition-transform">
+                    {isLoading ? (
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <><span>Sign In</span><ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" /></>
+                    )}
+                  </span>
+                  {/* Animated background shine */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 </MagneticButton>
               </form>
 
-              <p className="text-center text-sm text-surface-400 mt-6">
+              <p className="text-center text-sm text-surface-400 mt-6 animate-fade-in" style={{ animationDelay: '500ms', animationFillMode: 'both' }}>
                 New to MyTrackify?{' '}
                 <TransitionLink to="/register" className="text-primary-400 hover:text-primary-300 font-medium transition-colors hover:underline underline-offset-4">
                   Create account

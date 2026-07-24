@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState, type ElementType, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ElementType, type ReactNode, type HTMLAttributes } from 'react';
 
-interface RevealProps {
+interface RevealProps extends HTMLAttributes<HTMLElement> {
   children: ReactNode;
   as?: ElementType;
   className?: string;
@@ -17,6 +17,8 @@ export default function Reveal({
   delay = 0,
   threshold = 0.15,
   once = true,
+  style,
+  ...rest
 }: RevealProps) {
   const ref = useRef<HTMLElement | null>(null);
   const [visible, setVisible] = useState(false);
@@ -45,7 +47,8 @@ export default function Reveal({
     <Tag
       ref={ref as never}
       className={`reveal ${visible ? 'is-visible' : ''} ${className}`}
-      style={{ ['--reveal-delay' as string]: `${delay}ms` } as React.CSSProperties}
+      style={{ ['--reveal-delay' as string]: `${delay}ms`, ...style } as React.CSSProperties}
+      {...rest}
     >
       {children}
     </Tag>

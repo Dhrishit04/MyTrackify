@@ -2,10 +2,10 @@
 // A transform on an ancestor of a position:fixed element becomes its
 // containing block — which would yank a fixed link out of the viewport.
 
-import { useRef, useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode, type AnchorHTMLAttributes, type CSSProperties } from 'react';
 import { TransitionLink } from '../transition/TransitionProvider';
 
-interface Props {
+interface Props extends AnchorHTMLAttributes<HTMLAnchorElement> {
   to: string;
   children: ReactNode;
   className?: string;
@@ -14,7 +14,7 @@ interface Props {
   'data-cursor-label'?: string;
 }
 
-export default function MagneticLink({ to, children, className = '', strength = 0.35, ...rest }: Props) {
+export default function MagneticLink({ to, children, className = '', strength = 0.35, style, ...rest }: Props) {
   const ref = useRef<HTMLAnchorElement>(null);
   const [pos, setPos] = useState({ x: 0, y: 0 });
 
@@ -35,7 +35,7 @@ export default function MagneticLink({ to, children, className = '', strength = 
       onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
       className={className}
-      style={{ willChange: 'transform', transform: `translate3d(${pos.x}px, ${pos.y}px, 0)` }}
+      style={{ willChange: 'transform', transform: `translate3d(${pos.x}px, ${pos.y}px, 0)`, ...style } as CSSProperties}
       {...rest}
     >
       {children}

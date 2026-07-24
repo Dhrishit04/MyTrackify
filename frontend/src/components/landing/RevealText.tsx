@@ -8,6 +8,8 @@ interface Props {
   delay?: number;
   stagger?: number;
   threshold?: number;
+  /** 'words' (default) — word-level reveal; 'chars' — per-character stagger with blur + translateY */
+  mode?: 'words' | 'chars';
 }
 
 export default function RevealText({
@@ -18,6 +20,7 @@ export default function RevealText({
   delay = 0,
   stagger = 45,
   threshold = 0.2,
+  mode = 'words',
 }: Props) {
   const ref = useRef<HTMLElement | null>(null);
   const [shown, setShown] = useState(false);
@@ -37,6 +40,31 @@ export default function RevealText({
     o.observe(el);
     return () => o.disconnect();
   }, [threshold]);
+
+  if (mode === 'chars') {
+    const chars = [...text];
+    return (
+      <Tag
+        ref={ref as never}
+        className={`reveal-text font-display ${shown ? 'is-visible' : ''} ${className}`}
+        aria-label={text}
+      >
+        {chars.map((ch, i) => (
+          ch === ' ' ? (
+            <span key={i} className="inline-block" style={{ width: '0.35em' }}>&nbsp;</span>
+          ) : (
+            <span
+              key={i}
+              className="reveal-char"
+              style={{ transitionDelay: `${delay + i * (stagger * 0.6)}ms` }}
+            >
+              {ch}
+            </span>
+          )
+        ))}
+      </Tag>
+    );
+  }
 
   const words = text.split(' ');
 
